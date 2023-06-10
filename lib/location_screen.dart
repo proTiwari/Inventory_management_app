@@ -1533,6 +1533,7 @@ class _locationselectordialogState extends State<locationselectordialog> {
 
   @override
   Widget build(BuildContext context) {
+    var location;
     return AlertDialog(
       title: Text('Report'),
       content: Column(
@@ -1547,7 +1548,9 @@ class _locationselectordialogState extends State<locationselectordialog> {
                 child: Text(customer),
               );
             }).toList(),
-            onChanged: (String? value) {},
+            onChanged: (String? value) {
+              location = value;
+            },
           ),
         ],
       ),
@@ -1560,7 +1563,9 @@ class _locationselectordialogState extends State<locationselectordialog> {
         ),
         ElevatedButton(
           child: Text('Generate Report'),
-          onPressed: () {},
+          onPressed: () {
+            Get.toNamed(AppRoutes.pdfscreen, arguments: location);
+          },
         ),
       ],
     );
@@ -1608,6 +1613,7 @@ class _LocationInputDialogState extends State<LocationInputDialog> {
             print("i-locationName${i.locationName}");
             print(locationName);
             alreadyExists = true;
+            break;
           }
         } catch (e) {
           print(e);

@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:xplode_management/admin_panel.dart';
 import 'package:xplode_management/location_screen.dart';
 import 'package:xplode_management/login_screen.dart';
+import 'package:xplode_management/pdf_screen.dart';
 import 'package:xplode_management/product_list.dart';
 import 'package:xplode_management/product_view_activity.dart';
 import 'package:xplode_management/splash_screen.dart';
@@ -19,6 +20,7 @@ class AppRoutes {
   static const String admin = '/admin/';
   static const String activity = '/activity';
   static const String productactivity = '/productactivity';
+  static const String pdfscreen = '/pdfscreen';
 
   static final List<GetPage> routes = [
     GetPage(name: splashscreen, page: () => SplashScreen()),
@@ -29,5 +31,6 @@ class AppRoutes {
     GetPage(name: admin, page: () => AdminLoginpageWidget()),
     GetPage(name: activity, page: () => ActivitylistWidget()),
     GetPage(name: productactivity, page: () => ProductActivitylistWidget()),
+    GetPage(name: pdfscreen, page: () => PdfScreen()),
   ];
 }

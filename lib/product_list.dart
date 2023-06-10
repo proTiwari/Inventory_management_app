@@ -874,7 +874,7 @@ class _AddProductInputDialogState extends State<AddProductInputDialog> {
           TextField(
             controller: _categoryController,
             decoration: InputDecoration(
-              labelText: 'Category',
+              labelText: 'Brand',
             ),
           ),
         ],
