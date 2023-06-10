@@ -1568,7 +1568,9 @@ class _LocationlistWidgetState extends State<LocationlistWidget>
                                                           },
                                                         )
                                                       : ListView.builder(
-                                                          itemCount: customermatchQuery.length,
+                                                          itemCount:
+                                                              customermatchQuery
+                                                                  .length,
                                                           padding:
                                                               EdgeInsets.zero,
                                                           scrollDirection:
@@ -2058,6 +2060,8 @@ class _locationselectordialogState extends State<locationselectordialog> {
           onPressed: () async {
             if (location == "Select All") {
               List locationList = [];
+              locationlist = [];
+              productlist = [];
               print("Select All");
               try {
                 await FirebaseFirestore.instance
