@@ -1581,32 +1581,44 @@ class _LocationInputDialogState extends State<LocationInputDialog> {
     super.dispose();
   }
 
-  void _addLocation() {
+  Future<void> _addLocation() async {
     String locationName = _nameController.text;
+    print(locationName);
     if (_nameController.text.isEmpty) {
       return;
     }
     bool alreadyExists = false;
-    FirebaseFirestore.instance
+    await FirebaseFirestore.instance
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .get()
         .then((value) {
-      List locations = value.data()!['locations'];
-      for (var i in locations) {
-        if (i['locationName'] == locationName) {
-          Get.showSnackbar(GetBar(
-            message: 'Location Already Exists',
-            duration: Duration(seconds: 2),
-          ));
-          alreadyExists = true;
+      List<Location> locations = [];
+      for (var k in value.data()!['locations']) {
+        locations.add(Location.fromJson(k));
+      }
+      print(locations.length);
+      for (Location i in locations) {
+        try {
+          if (i.locationName == locationName) {
+            Get.showSnackbar(GetBar(
+              message: 'Location Already Exists',
+              duration: Duration(seconds: 2),
+            ));
+            print("i-locationName${i.locationName}");
+            print(locationName);
+            alreadyExists = true;
+          }
+        } catch (e) {
+          print(e);
         }
       }
     });
-    if (alreadyExists = true) {
+    if (alreadyExists == true) {
+      print('already exists');
       return;
     } else {
-      FirebaseFirestore.instance
+      await FirebaseFirestore.instance
           .collection('users')
           .doc(FirebaseAuth.instance.currentUser!.uid)
           .update({

@@ -8,6 +8,7 @@ OwnerModel ownerModelFromJson(String str) =>
     OwnerModel.fromJson(json.decode(str));
 
 String ownerModelToJson(OwnerModel data) => json.encode(data.toJson());
+String locationToJson(Location data) => json.encode(data.toJson());
 
 class OwnerModel {
   List<Location>? locations;

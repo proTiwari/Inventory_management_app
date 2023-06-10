@@ -786,11 +786,46 @@ class _AddProductInputDialogState extends State<AddProductInputDialog> {
     super.dispose();
   }
 
-  void _addProduct() {
+  void _addProduct() async {
     if (_nameController.text.isEmpty) {
       return;
     }
-    FirebaseFirestore.instance
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then((value) {
+      List<Location> locations = [];
+      for (var k in value.data()!['locations']) {
+        locations.add(Location.fromJson(k));
+      }
+      for (Location i in locations) {
+        try {
+          if (i.locationName == widget.location) {
+            print("location found ${i.locationName}");
+            print("product found1 ${i.product}");
+            print("product name: ${i.product!.pname}");
+            if (i.product!.pname == null) {
+              print("product found2 ${i.product}");
+              locations.remove(i);
+            }
+          }
+        } catch (e) {
+          print("this is the error ${e}");
+        }
+      }
+      try {
+        FirebaseFirestore.instance
+            .collection("users")
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .update({
+          "locations": locations.map((locations) => locations.toJson()).toList()
+        });
+      } catch (e) {
+        print("this is the error2 ${e}");
+      }
+    });
+    await FirebaseFirestore.instance
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .update({
