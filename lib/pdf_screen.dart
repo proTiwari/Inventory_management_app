@@ -102,7 +102,8 @@ class PdfScreenState extends State<PdfScreen>
 
     final appDocDir = await getApplicationDocumentsDirectory();
     final appDocPath = appDocDir.path;
-    final file = File('$appDocPath/document.pdf');
+    final file = File(
+        '$appDocPath/inventory_${DateTime.now().toString().split("")[0]}.pdf');
     print('Save as file ${file.path} ...');
     await file.writeAsBytes(bytes);
     await OpenFile.open(file.path);
@@ -133,6 +134,8 @@ class PdfScreenState extends State<PdfScreen>
         ),
       ),
       body: PdfPreview(
+        pdfFileName:
+            'Inventory_${DateTime.now().toString().split(" ")[0].split("-")[2]}/${DateTime.now().toString().split(" ")[0].split("-")[1]}/${DateTime.now().toString().split(" ")[0].split("-")[0]}.pdf',
         maxPageWidth: 700,
         build: (format) => examples[_tab].builder(format, _data),
         actions: actions,

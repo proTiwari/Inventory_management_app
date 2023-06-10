@@ -716,7 +716,7 @@ class _ProductlistWidgetState extends State<ProductlistWidget> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Padding(
-              padding: const EdgeInsets.only(bottom: 10.0),
+              padding: const EdgeInsets.only(bottom: 40.0),
               child: FloatingActionButton(
                 onPressed: () {
                   showDialog(
@@ -735,26 +735,26 @@ class _ProductlistWidgetState extends State<ProductlistWidget> {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 45.0),
-              child: FloatingActionButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AddProductInputDialog(location);
-                    },
-                  );
-                },
-                backgroundColor: Color(0xFF4B39EF),
-                elevation: 8,
-                child: Icon(
-                  Icons.download_outlined,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.only(bottom: 45.0),
+            //   child: FloatingActionButton(
+            //     onPressed: () {
+            //       showDialog(
+            //         context: context,
+            //         builder: (BuildContext context) {
+            //           return AddProductInputDialog(location);
+            //         },
+            //       );
+            //     },
+            //     backgroundColor: Color(0xFF4B39EF),
+            //     elevation: 8,
+            //     child: Icon(
+            //       Icons.download_outlined,
+            //       color: Colors.white,
+            //       size: 24,
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),

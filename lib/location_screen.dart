@@ -10,6 +10,7 @@ import 'package:xplode_management/product_list.dart';
 import 'package:xplode_management/router.dart';
 
 import 'create_order.dart';
+import 'global_variables.dart';
 import 'model/owner_model.dart';
 
 class LocationlistWidget extends StatefulWidget {
@@ -1456,60 +1457,6 @@ class _LocationlistWidgetState extends State<LocationlistWidget> {
   }
 }
 
-class editlocationname extends StatefulWidget {
-  String name;
-  editlocationname(this.name);
-
-  @override
-  _editlocationnameState createState() => _editlocationnameState();
-}
-
-class _editlocationnameState extends State<editlocationname> {
-  TextEditingController _nameController = TextEditingController();
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    _nameController.text = widget.name;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text('Report'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          TextField(
-            controller: _nameController,
-            decoration: InputDecoration(
-              labelText: 'Location Name',
-            ),
-          ),
-        ],
-      ),
-      actions: <Widget>[
-        ElevatedButton(
-          child: Text('Cancel'),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        ElevatedButton(
-          child: Text('Generate Report'),
-          onPressed: () {},
-        ),
-      ],
-    );
-  }
-}
-
 class locationselectordialog extends StatefulWidget {
   List<String> uniqueList;
   locationselectordialog(this.uniqueList);
@@ -1528,12 +1475,13 @@ class _locationselectordialogState extends State<locationselectordialog> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
     widget.uniqueList.add("Select All");
   }
 
   @override
   Widget build(BuildContext context) {
-    var location;
+    var location = widget.uniqueList[0];
     return AlertDialog(
       title: Text('Report'),
       content: Column(
@@ -1549,7 +1497,7 @@ class _locationselectordialogState extends State<locationselectordialog> {
               );
             }).toList(),
             onChanged: (String? value) {
-              location = value;
+              location = value!;
             },
           ),
         ],
@@ -1563,8 +1511,148 @@ class _locationselectordialogState extends State<locationselectordialog> {
         ),
         ElevatedButton(
           child: Text('Generate Report'),
-          onPressed: () {
-            Get.toNamed(AppRoutes.pdfscreen, arguments: location);
+          onPressed: () async {
+            if (location == "Select All") {
+              List locationList = [];
+              print("Select All");
+              try {
+                await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(FirebaseAuth.instance.currentUser!.uid)
+                    .get()
+                    .then((value) {
+                  List<Location> locations = value
+                      .data()!['locations']
+                      .map<Location>((e) => Location.fromJson(e))
+                      .toList();
+                  for (var i in locations) {
+                    if (locationList.contains(i.locationName) == false) {
+                      locationList.add(i.locationName);
+                    }
+                  }
+                  int count = 0;
+                  List product = [];
+                  String recentlocation = "";
+                  for (var j in locationList) {
+                    if (j != null) {
+                      for (var k in locations) {
+                        if (j == k.locationName) {
+                          count++;
+                          if (count > 14 || recentlocation != j) {
+                            count = 1;
+                            if (count == 1) {
+                              locationlist.add(j);
+                              product.add([
+                                [
+                                  k.product!.pname,
+                                  k.product!.category,
+                                  k.product!.quantity
+                                ]
+                              ]);
+                            }
+                          } else {
+                            if (count == 1) {
+                              locationlist.add(j);
+                              product.add([
+                                [
+                                  k.product!.pname,
+                                  k.product!.category,
+                                  k.product!.quantity
+                                ]
+                              ]);
+                            } else {
+                              product[product.length - 1].add([
+                                k.product!.pname,
+                                k.product!.category,
+                                k.product!.quantity
+                              ]);
+                            }
+                          }
+                          try {
+                            recentlocation = j;
+                          } catch (e) {
+                            print("fweiofwjojf: ${e}");
+                          }
+                        }
+                      }
+                    }
+
+                    print("location name : ${j} : ${count} : ${product}");
+                  }
+                  print("product: ${product}");
+                  productlist = [];
+                  productlist = product;
+                }).whenComplete(() {
+                  Get.toNamed(AppRoutes.pdfscreen);
+                });
+              } catch (e) {
+                print(e);
+              }
+            } else {
+              List locationList = [];
+              await FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(FirebaseAuth.instance.currentUser!.uid)
+                  .get()
+                  .then((value) {
+                List<Location> locations = value
+                    .data()!['locations']
+                    .map<Location>((e) => Location.fromJson(e))
+                    .toList();
+                for (var i in locations) {
+                  if (locationList.contains(i.locationName) == false) {
+                    locationList.add(i.locationName);
+                  }
+                }
+                int count = 0;
+                List product = [];
+                String recentlocation = "";
+                for (var k in locations) {
+                  //
+                  if (location == k.locationName) {
+                    count++;
+                    if (count > 14 || recentlocation != location) {
+                      count = 1;
+                      if (count == 1) {
+                        product.add([
+                          [
+                            k.product!.pname,
+                            k.product!.category,
+                            k.product!.quantity
+                          ]
+                        ]);
+                      }
+                    } else {
+                      if (count == 1) {
+                        product.add([
+                          [
+                            k.product!.pname,
+                            k.product!.category,
+                            k.product!.quantity
+                          ]
+                        ]);
+                      } else {
+                        product[product.length - 1].add([
+                          k.product!.pname,
+                          k.product!.category,
+                          k.product!.quantity
+                        ]);
+                      }
+                    }
+                    try {
+                      locationlist = [location];
+                      recentlocation = location;
+                    } catch (e) {
+                      print(e);
+                    }
+                  }
+                }
+                print("product: ${product}");
+                productlist = product;
+              }).whenComplete(() {
+                Get.toNamed(AppRoutes.pdfscreen);
+              });
+            }
           },
         ),
       ],

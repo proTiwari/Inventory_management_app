@@ -20,6 +20,7 @@ import 'dart:typed_data';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:xplode_management/global_variables.dart';
 
 import '../data.dart';
 
@@ -27,39 +28,42 @@ Future<Uint8List> generateReport(
     PdfPageFormat pageFormat, CustomData data) async {
   const tableHeaders = ['PRODUCT', 'BRAND', 'QTY'];
 
-  const dataTable = [
-    [
-      ['Phone', 80, 95],
-      ['Internet', 250, 230],
-      ['Electricity', 300, 375],
-      ['Movies', 85, 80],
-      ['Food', 300, 350],
-      ['Fuel', 650, 550],
-      ['Insurance', 250, 310],
-      ['Phone', 80, 95],
-      ['Internet', 250, 230],
-      ['Electricity', 300, 375],
-      ['Movies', 85, 80],
-      ['Electricity', 300, 375],
-      ['Movies', 85, 80],
-      ['Movies', 85, 80],
-    ],
-    [
-      ['Phone', 80, 95],
-      ['Internet', 250, 230],
-      ['Electricity', 300, 375],
-    ],
-    [
-      ['Phone', 80, 95],
-      ['Internet', 250, 230],
-      ['Electricity', 300, 375],
-    ],
-  ];
+  // var dataTable = [
+  //   [
+  //     ['Phone', '80', 95],
+  //     ['Internet', 250, 230],
+  //     ['Electricity', 300, 375],
+  //     ['Movies', 85, 80],
+  //     ['Food', 300, 350],
+  //     ['Fuel', 650, 550],
+  //     ['Insurance', 250, 310],
+  //     ['Phone', 80, 95],
+  //     ['Internet', 250, 230],
+  //     ['Electricity', 300, 375],
+  //     ['Movies', 85, 80],
+  //     ['Electricity', 300, 375],
+  //     ['Movies', 85, 80],
+  //     ['Movies', 85, 80],
+  //   ],
+  //   [
+  //     ['Phone', 80, 95],
+  //     ['Internet', 250, 230],
+  //     ['Electricity', 300, 375],
+  //   ],
+  //   [
+  //     ['Phone', 80, 95],
+  //     ['Internet', 250, 230],
+  //     ['Electricity', 300, 375],
+  //   ],
+  // ];
+  var dataTable = productlist;
 
   const baseColor = PdfColors.cyan;
 
   // Create a PDF document.
-  final document = pw.Document();
+  final document = pw.Document(
+    title: 'inventory_${DateTime.now()}.pdf',
+  );
 
   final theme = pw.ThemeData.withFont(
     base: await PdfGoogleFonts.openSansRegular(),
@@ -127,10 +131,15 @@ Future<Uint8List> generateReport(
                   pw.Row(
                       mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                       children: [
-                        pw.Text("Location A",
-                            style: pw.TextStyle(
-                                fontSize: 16,
-                                fontWeight: pw.FontWeight.normal)),
+                        locationlist.length == 1
+                            ? pw.Text("${locationlist[0]}",
+                                style: pw.TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: pw.FontWeight.normal))
+                            : pw.Text("${locationlist[i]}",
+                                style: pw.TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: pw.FontWeight.normal)),
                         pw.Text(
                             "Date :- ${DateTime.now().toString().split(" ")[0].split("-")[2]}/${DateTime.now().toString().split(" ")[0].split("-")[1]}/${DateTime.now().toString().split(" ")[0].split("-")[0]}",
                             style: pw.TextStyle(

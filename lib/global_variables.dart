@@ -1,0 +1,2 @@
+List productlist = [];
+List locationlist = [];
