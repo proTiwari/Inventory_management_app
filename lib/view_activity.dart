@@ -29,8 +29,8 @@ class _ActivitylistWidgetState extends State<ActivitylistWidget> {
 
   List<String> allLocations = [];
 
-  getAllLocations() {
-    FirebaseFirestore.instance
+  getAllLocations() async {
+    await FirebaseFirestore.instance
         .collection("users")
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .get()
@@ -39,18 +39,22 @@ class _ActivitylistWidgetState extends State<ActivitylistWidget> {
       for (var i in locations) {
         print(i['locationName']);
         setState(() {
-          allLocations.add(i['locationName']);
+          if (allLocations.contains(i['locationName']) == false) {
+            allLocations = [...allLocations, i['locationName']];
+          }
+          ;
+          // allLocations.add(i['locationName']);
         });
       }
       List<String> uniqueList = [];
 
-      for (String str in allLocations) {
-        if (!uniqueList.contains(str)) {
-          uniqueList.add(str);
-        }
-      }
+      // for (String str in allLocations) {
+      //   if (!uniqueList.contains(str)) {
+      //     uniqueList.add(str);
+      //   }
+      // }
       setState(() {
-        allLocations = uniqueList;
+        // allLocations = uniqueList;
       });
     });
   }
