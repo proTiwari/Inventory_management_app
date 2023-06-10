@@ -20,17 +20,32 @@ class LocationlistWidget extends StatefulWidget {
   _LocationlistWidgetState createState() => _LocationlistWidgetState();
 }
 
-class _LocationlistWidgetState extends State<LocationlistWidget> {
+class _LocationlistWidgetState extends State<LocationlistWidget>
+    with SingleTickerProviderStateMixin {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final _unfocusNode = FocusNode();
   List<String> uniqueList = [];
   TextEditingController editTextController = TextEditingController();
   TextEditingController locationsearchcontroller = TextEditingController();
   List<String> matchQuery = [];
+  TabController? tabController;
+
+  List customeruniqueList = [];
+  TextEditingController customersearchcontroller = TextEditingController();
+  List customermatchQuery = [];
 
   @override
   void initState() {
     super.initState();
+    tabController = TabController(
+      length: 3,
+      vsync: this,
+      initialIndex: 0,
+    )..addListener(() {
+        setState(() {
+          tabController;
+        });
+      });
     editTextController.text = "";
     // testfun();
     locationsearchcontroller.addListener(() {
@@ -44,6 +59,19 @@ class _LocationlistWidgetState extends State<LocationlistWidget> {
         matchQuery;
       });
       print(matchQuery);
+    });
+
+    customersearchcontroller.addListener(() {
+      print("printing text ${customersearchcontroller.text}");
+      customermatchQuery = customeruniqueList
+          .where((item) => item
+              .toLowerCase()
+              .contains(customersearchcontroller.text.toLowerCase()))
+          .toList();
+      setState(() {
+        customermatchQuery;
+      });
+      print(customermatchQuery);
     });
   }
 
@@ -99,9 +127,10 @@ class _LocationlistWidgetState extends State<LocationlistWidget> {
                       initialIndex: 0,
                       child: Column(
                         children: [
-                          const Align(
+                          Align(
                             alignment: Alignment(0, 0),
                             child: TabBar(
+                              controller: tabController,
                               labelColor: Colors.white,
                               unselectedLabelColor: Color(0xB3FFFFFF),
                               labelStyle: TextStyle(
@@ -128,6 +157,7 @@ class _LocationlistWidgetState extends State<LocationlistWidget> {
                           Expanded(
                             flex: 9,
                             child: TabBarView(
+                              controller: tabController,
                               children: [
                                 Column(
                                   mainAxisSize: MainAxisSize.max,
@@ -1275,116 +1305,487 @@ class _LocationlistWidgetState extends State<LocationlistWidget> {
                                   mainAxisSize: MainAxisSize.max,
                                   children: [
                                     Expanded(
+                                      flex: 1,
                                       child: Container(
+                                        color: Colors.white,
                                         width:
                                             MediaQuery.of(context).size.width,
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                0.9,
-                                        decoration: BoxDecoration(
-                                          color: Color(0xFFF1F4F8),
+                                        child: TextFormField(
+                                          controller: customersearchcontroller,
+                                          decoration: InputDecoration(
+                                            border: InputBorder.none,
+                                            hintText: 'Search',
+                                            prefixIcon: Icon(Icons.search),
+                                          ),
                                         ),
-                                        child: ListView(
-                                          padding: EdgeInsets.zero,
-                                          scrollDirection: Axis.vertical,
-                                          children: [
-                                            Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(16, 8, 16, 0),
-                                              child: Container(
-                                                width: double.infinity,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      blurRadius: 3,
-                                                      color: Color(0x20000000),
-                                                      offset: Offset(0, 1),
-                                                    )
-                                                  ],
-                                                  borderRadius:
-                                                      BorderRadius.circular(12),
-                                                ),
-                                                child: Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(8, 8, 12, 8),
-                                                  child: Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.max,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Expanded(
-                                                        child: Column(
-                                                          mainAxisSize:
-                                                              MainAxisSize.max,
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Padding(
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 11,
+                                      child: Container(
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.9,
+                                          decoration: BoxDecoration(
+                                            color: Color(0xFFF1F4F8),
+                                          ),
+                                          child: StreamBuilder<
+                                                  DocumentSnapshot>(
+                                              stream: FirebaseFirestore.instance
+                                                  .collection("users")
+                                                  .doc(FirebaseAuth.instance
+                                                      .currentUser!.uid)
+                                                  .snapshots(), // Replace with your actual stream
+                                              builder: (BuildContext context,
+                                                  snapshot) {
+                                                if (snapshot.hasData) {
+                                                  OwnerModel data =
+                                                      OwnerModel.fromJson(
+                                                          snapshot.data!.data()
+                                                              as Map<String,
+                                                                  dynamic>);
+                                                  customeruniqueList =
+                                                      data.customer!;
+                                                  return customersearchcontroller
+                                                              .text ==
+                                                          ''
+                                                      ? ListView.builder(
+                                                          itemCount: data
+                                                              .customer!.length,
+                                                          padding:
+                                                              EdgeInsets.zero,
+                                                          scrollDirection:
+                                                              Axis.vertical,
+                                                          itemBuilder:
+                                                              (BuildContext
+                                                                      context,
+                                                                  int index) {
+                                                            return Padding(
                                                               padding:
                                                                   EdgeInsetsDirectional
                                                                       .fromSTEB(
                                                                           16,
+                                                                          8,
                                                                           16,
+                                                                          0),
+                                                              child: Container(
+                                                                width: double
+                                                                    .infinity,
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  boxShadow: [
+                                                                    BoxShadow(
+                                                                      blurRadius:
+                                                                          3,
+                                                                      color: Color(
+                                                                          0x20000000),
+                                                                      offset:
+                                                                          Offset(
+                                                                              0,
+                                                                              1),
+                                                                    )
+                                                                  ],
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              12),
+                                                                ),
+                                                                child: Padding(
+                                                                  padding: EdgeInsetsDirectional
+                                                                      .fromSTEB(
+                                                                          8,
+                                                                          8,
+                                                                          12,
+                                                                          8),
+                                                                  child: Row(
+                                                                    mainAxisSize:
+                                                                        MainAxisSize
+                                                                            .max,
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .center,
+                                                                    children: [
+                                                                      Expanded(
+                                                                        child:
+                                                                            Column(
+                                                                          mainAxisSize:
+                                                                              MainAxisSize.max,
+                                                                          crossAxisAlignment:
+                                                                              CrossAxisAlignment.start,
+                                                                          children: [
+                                                                            Padding(
+                                                                              padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
+                                                                              child: Text('${data.customer![index]}',
+                                                                                  style: TextStyle(
+                                                                                    fontFamily: 'Plus Jakarta Sans',
+                                                                                    color: Color(0xFF14181B),
+                                                                                    fontSize: 16,
+                                                                                    fontWeight: FontWeight.normal,
+                                                                                  )),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                      Row(
+                                                                        mainAxisSize:
+                                                                            MainAxisSize.max,
+                                                                        children: [
+                                                                          Padding(
+                                                                            padding: EdgeInsetsDirectional.fromSTEB(
+                                                                                0,
+                                                                                0,
+                                                                                15,
+                                                                                0),
+                                                                            child:
+                                                                                GestureDetector(
+                                                                              onTap: () {
+                                                                                editTextController.text = data.customer![index];
+                                                                                showDialog(
+                                                                                  context: context,
+                                                                                  builder: (ctx) => AlertDialog(
+                                                                                    title: Text('Edit'),
+                                                                                    content: Column(
+                                                                                      mainAxisSize: MainAxisSize.min,
+                                                                                      children: <Widget>[
+                                                                                        TextFormField(
+                                                                                          controller: editTextController,
+                                                                                          decoration: InputDecoration(
+                                                                                            labelText: 'Customer Name',
+                                                                                          ),
+                                                                                        ),
+                                                                                      ],
+                                                                                    ),
+                                                                                    actions: <Widget>[
+                                                                                      ElevatedButton(
+                                                                                        child: Text('Cancel'),
+                                                                                        onPressed: () {
+                                                                                          Navigator.of(context).pop();
+                                                                                        },
+                                                                                      ),
+                                                                                      ElevatedButton(
+                                                                                        child: Text('Save'),
+                                                                                        onPressed: () {
+                                                                                          FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).get().then((value) {
+                                                                                            List<dynamic> customer = value.data()!["customer"];
+                                                                                            print("owjfowejo: ${customer}");
+
+                                                                                            for (var i = 0; i < customer.length; i++) {
+                                                                                              if (customer[i] == data.customer![index]) {
+                                                                                                //change the key name locationName of the map i to the new value
+                                                                                                customer[i] = "${editTextController.text}";
+                                                                                              }
+                                                                                            }
+                                                                                            print(data.customer![index]);
+                                                                                            print("sijief ${customer}");
+                                                                                            print(editTextController.text);
+                                                                                            FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).update({
+                                                                                              "customer": customer
+                                                                                            });
+                                                                                          });
+                                                                                          Navigator.of(context).pop();
+                                                                                        },
+                                                                                      ),
+                                                                                    ],
+                                                                                  ),
+                                                                                );
+                                                                              },
+                                                                              child: Icon(
+                                                                                Icons.edit_outlined,
+                                                                                color: Color(0xFF4B39EF),
+                                                                                size: 24,
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                          GestureDetector(
+                                                                            onTap:
+                                                                                () {
+                                                                              editTextController.text = data.customer![index];
+                                                                              showDialog(
+                                                                                context: context,
+                                                                                builder: (ctx) => AlertDialog(
+                                                                                  title: Text('Delete'),
+                                                                                  content: Column(
+                                                                                    mainAxisSize: MainAxisSize.min,
+                                                                                    children: <Widget>[
+                                                                                      TextFormField(
+                                                                                        enabled: false,
+                                                                                        controller: editTextController,
+                                                                                        decoration: InputDecoration(
+                                                                                          labelText: 'Are you sure you want to delete this Customer?',
+                                                                                        ),
+                                                                                      ),
+                                                                                    ],
+                                                                                  ),
+                                                                                  actions: <Widget>[
+                                                                                    ElevatedButton(
+                                                                                      child: Text('No'),
+                                                                                      onPressed: () {
+                                                                                        Navigator.of(context).pop();
+                                                                                      },
+                                                                                    ),
+                                                                                    ElevatedButton(
+                                                                                      child: Text('Yes'),
+                                                                                      onPressed: () {
+                                                                                        FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).get().then((value) {
+                                                                                          List<dynamic> customer = value.data()!["customer"];
+
+                                                                                          for (var i = 0; i < customer.length; i++) {
+                                                                                            if (customer[i] == data.customer![index]) {
+                                                                                              //change the key name locationName of the map i to the new value
+                                                                                              customer.remove(customer[i]);
+                                                                                            }
+                                                                                          }
+                                                                                          FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).update({
+                                                                                            "customer": customer
+                                                                                          });
+                                                                                        });
+                                                                                        Navigator.of(context).pop();
+                                                                                      },
+                                                                                    ),
+                                                                                  ],
+                                                                                ),
+                                                                              );
+                                                                            },
+                                                                            child:
+                                                                                Icon(
+                                                                              Icons.delete_sharp,
+                                                                              color: Color(0xFF4B39EF),
+                                                                              size: 24,
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            );
+                                                          },
+                                                        )
+                                                      : ListView.builder(
+                                                          itemCount: customermatchQuery.length,
+                                                          padding:
+                                                              EdgeInsets.zero,
+                                                          scrollDirection:
+                                                              Axis.vertical,
+                                                          itemBuilder:
+                                                              (BuildContext
+                                                                      context,
+                                                                  int index) {
+                                                            return Padding(
+                                                              padding:
+                                                                  EdgeInsetsDirectional
+                                                                      .fromSTEB(
                                                                           16,
-                                                                          16),
-                                                              child: Text(
-                                                                  'Customer Name',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontFamily:
-                                                                        'Plus Jakarta Sans',
-                                                                    color: Color(
-                                                                        0xFF14181B),
-                                                                    fontSize:
-                                                                        16,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .normal,
-                                                                  )),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      Row(
-                                                        mainAxisSize:
-                                                            MainAxisSize.max,
-                                                        children: [
-                                                          Padding(
-                                                            padding:
-                                                                EdgeInsetsDirectional
-                                                                    .fromSTEB(
-                                                                        0,
-                                                                        0,
-                                                                        15,
-                                                                        0),
-                                                            child: Icon(
-                                                              Icons
-                                                                  .edit_outlined,
-                                                              color: Color(
-                                                                  0xFF4B39EF),
-                                                              size: 24,
-                                                            ),
-                                                          ),
-                                                          Icon(
-                                                            Icons.delete_sharp,
-                                                            color: Color(
-                                                                0xFF4B39EF),
-                                                            size: 24,
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                                                          8,
+                                                                          16,
+                                                                          0),
+                                                              child: Container(
+                                                                width: double
+                                                                    .infinity,
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  boxShadow: [
+                                                                    BoxShadow(
+                                                                      blurRadius:
+                                                                          3,
+                                                                      color: Color(
+                                                                          0x20000000),
+                                                                      offset:
+                                                                          Offset(
+                                                                              0,
+                                                                              1),
+                                                                    )
+                                                                  ],
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              12),
+                                                                ),
+                                                                child: Padding(
+                                                                  padding: EdgeInsetsDirectional
+                                                                      .fromSTEB(
+                                                                          8,
+                                                                          8,
+                                                                          12,
+                                                                          8),
+                                                                  child: Row(
+                                                                    mainAxisSize:
+                                                                        MainAxisSize
+                                                                            .max,
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .center,
+                                                                    children: [
+                                                                      Expanded(
+                                                                        child:
+                                                                            Column(
+                                                                          mainAxisSize:
+                                                                              MainAxisSize.max,
+                                                                          crossAxisAlignment:
+                                                                              CrossAxisAlignment.start,
+                                                                          children: [
+                                                                            Padding(
+                                                                              padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
+                                                                              child: Text('${customermatchQuery![index]}',
+                                                                                  style: TextStyle(
+                                                                                    fontFamily: 'Plus Jakarta Sans',
+                                                                                    color: Color(0xFF14181B),
+                                                                                    fontSize: 16,
+                                                                                    fontWeight: FontWeight.normal,
+                                                                                  )),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                      Row(
+                                                                        mainAxisSize:
+                                                                            MainAxisSize.max,
+                                                                        children: [
+                                                                          Padding(
+                                                                            padding: EdgeInsetsDirectional.fromSTEB(
+                                                                                0,
+                                                                                0,
+                                                                                15,
+                                                                                0),
+                                                                            child:
+                                                                                GestureDetector(
+                                                                              onTap: () {
+                                                                                editTextController.text = customermatchQuery![index];
+                                                                                showDialog(
+                                                                                  context: context,
+                                                                                  builder: (ctx) => AlertDialog(
+                                                                                    title: Text('Edit'),
+                                                                                    content: Column(
+                                                                                      mainAxisSize: MainAxisSize.min,
+                                                                                      children: <Widget>[
+                                                                                        TextFormField(
+                                                                                          controller: editTextController,
+                                                                                          decoration: InputDecoration(
+                                                                                            labelText: 'Customer Name',
+                                                                                          ),
+                                                                                        ),
+                                                                                      ],
+                                                                                    ),
+                                                                                    actions: <Widget>[
+                                                                                      ElevatedButton(
+                                                                                        child: Text('Cancel'),
+                                                                                        onPressed: () {
+                                                                                          Navigator.of(context).pop();
+                                                                                        },
+                                                                                      ),
+                                                                                      ElevatedButton(
+                                                                                        child: Text('Save'),
+                                                                                        onPressed: () {
+                                                                                          FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).get().then((value) {
+                                                                                            List<dynamic> customer = value.data()!["customer"];
+                                                                                            print("owjfowejo: ${customer}");
+
+                                                                                            for (var i = 0; i < customer.length; i++) {
+                                                                                              if (customer[i] == customermatchQuery![index]) {
+                                                                                                //change the key name locationName of the map i to the new value
+                                                                                                customer[i] = "${editTextController.text}";
+                                                                                              }
+                                                                                            }
+                                                                                            print(data.customer![index]);
+                                                                                            print("sijief ${customer}");
+                                                                                            print(editTextController.text);
+                                                                                            FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).update({
+                                                                                              "customer": customer
+                                                                                            });
+                                                                                          });
+                                                                                          Navigator.of(context).pop();
+                                                                                        },
+                                                                                      ),
+                                                                                    ],
+                                                                                  ),
+                                                                                );
+                                                                              },
+                                                                              child: Icon(
+                                                                                Icons.edit_outlined,
+                                                                                color: Color(0xFF4B39EF),
+                                                                                size: 24,
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                          GestureDetector(
+                                                                            onTap:
+                                                                                () {
+                                                                              editTextController.text = customermatchQuery![index];
+                                                                              showDialog(
+                                                                                context: context,
+                                                                                builder: (ctx) => AlertDialog(
+                                                                                  title: Text('Delete'),
+                                                                                  content: Column(
+                                                                                    mainAxisSize: MainAxisSize.min,
+                                                                                    children: <Widget>[
+                                                                                      TextFormField(
+                                                                                        enabled: false,
+                                                                                        controller: editTextController,
+                                                                                        decoration: InputDecoration(
+                                                                                          labelText: 'Are you sure you want to delete this Customer?',
+                                                                                        ),
+                                                                                      ),
+                                                                                    ],
+                                                                                  ),
+                                                                                  actions: <Widget>[
+                                                                                    ElevatedButton(
+                                                                                      child: Text('No'),
+                                                                                      onPressed: () {
+                                                                                        Navigator.of(context).pop();
+                                                                                      },
+                                                                                    ),
+                                                                                    ElevatedButton(
+                                                                                      child: Text('Yes'),
+                                                                                      onPressed: () {
+                                                                                        FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).get().then((value) {
+                                                                                          List<dynamic> customer = value.data()!["customer"];
+
+                                                                                          for (var i = 0; i < customer.length; i++) {
+                                                                                            if (customer[i] == customermatchQuery![index]) {
+                                                                                              //change the key name locationName of the map i to the new value
+                                                                                              customer.remove(customer[i]);
+                                                                                            }
+                                                                                          }
+                                                                                          FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).update({
+                                                                                            "customer": customer
+                                                                                          });
+                                                                                        });
+                                                                                        Navigator.of(context).pop();
+                                                                                      },
+                                                                                    ),
+                                                                                  ],
+                                                                                ),
+                                                                              );
+                                                                            },
+                                                                            child:
+                                                                                Icon(
+                                                                              Icons.delete_sharp,
+                                                                              color: Color(0xFF4B39EF),
+                                                                              size: 24,
+                                                                            ),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            );
+                                                          },
+                                                        );
+                                                }
+                                                return Center(
+                                                    child:
+                                                        CircularProgressIndicator());
+                                              })),
                                     ),
                                     SizedBox(
                                       height: 50,
@@ -1405,7 +1806,14 @@ class _LocationlistWidgetState extends State<LocationlistWidget> {
                                               borderRadius: BorderRadius.all(
                                                   Radius.circular(10))),
                                         ),
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return addcustomerdialog();
+                                            },
+                                          );
+                                        },
                                       ),
                                     ),
                                   ],
@@ -1419,40 +1827,176 @@ class _LocationlistWidgetState extends State<LocationlistWidget> {
                   ),
                 ],
               ),
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.only(bottom: 45.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text("Generate Report",
-                  style: TextStyle(
-                      color: const Color.fromARGB(255, 0, 0, 0),
-                      fontWeight: FontWeight.w400,
-                      fontSize: 14.0)),
-              SizedBox(
-                width: 20,
-              ),
-              FloatingActionButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return locationselectordialog(uniqueList);
-                    },
-                  );
-                },
-                backgroundColor: Color(0xFF4B39EF),
-                elevation: 8,
-                child: Icon(
-                  Icons.download_outlined,
-                  color: Colors.white,
-                  size: 24,
+        floatingActionButton: tabController!.index == 0
+            ? Padding(
+                padding: const EdgeInsets.only(bottom: 45.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text("Generate Report",
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 0, 0, 0),
+                            fontWeight: FontWeight.w400,
+                            fontSize: 14.0)),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    FloatingActionButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return locationselectordialog(uniqueList);
+                          },
+                        );
+                      },
+                      backgroundColor: Color(0xFF4B39EF),
+                      elevation: 8,
+                      child: Icon(
+                        Icons.download_outlined,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-        ),
+              )
+            : tabController!.index == 9
+                ? Padding(
+                    padding: const EdgeInsets.only(bottom: 45.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text("Add Customer",
+                            style: TextStyle(
+                                color: const Color.fromARGB(255, 0, 0, 0),
+                                fontWeight: FontWeight.w400,
+                                fontSize: 14.0)),
+                        SizedBox(
+                          width: 20,
+                        ),
+                        FloatingActionButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return addcustomerdialog();
+                              },
+                            );
+                          },
+                          backgroundColor: Color(0xFF4B39EF),
+                          elevation: 8,
+                          child: Icon(
+                            Icons.add,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : Container(),
       ),
+    );
+  }
+}
+
+class addcustomerdialog extends StatefulWidget {
+  addcustomerdialog();
+
+  @override
+  _addcustomerdialogState createState() => _addcustomerdialogState();
+}
+
+class _addcustomerdialogState extends State<addcustomerdialog> {
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  TextEditingController _nameController = TextEditingController();
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  Future<void> _addCustomer() async {
+    String name = _nameController.text;
+    if (_nameController.text.isEmpty) {
+      return;
+    }
+    bool alreadyExists = false;
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then((value) {
+      List customer = value.data()!['customer'];
+
+      for (var i in customer) {
+        try {
+          if (i == name) {
+            Get.showSnackbar(GetBar(
+              message: 'Customer Already Exists',
+              duration: Duration(seconds: 2),
+            ));
+            alreadyExists = true;
+            break;
+          }
+        } catch (e) {
+          print(e);
+        }
+      }
+    });
+    if (alreadyExists == true) {
+      print('already exists');
+      return;
+    } else {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .update({
+        'customer': FieldValue.arrayUnion([name])
+      }).whenComplete(() {
+        Get.showSnackbar(GetBar(
+          message: 'Customer Added',
+          duration: Duration(seconds: 2),
+        ));
+      });
+    }
+
+    // Perform your desired action with the entered data here
+    Navigator.of(context).pop(); // Close the dialog box
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Add Customer'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          TextField(
+            controller: _nameController,
+            decoration: InputDecoration(
+              labelText: 'Customer Name',
+            ),
+          ),
+        ],
+      ),
+      actions: <Widget>[
+        ElevatedButton(
+          child: Text('Cancel'),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        ElevatedButton(
+          child: Text('Add Customer'),
+          onPressed: _addCustomer,
+        ),
+      ],
     );
   }
 }
