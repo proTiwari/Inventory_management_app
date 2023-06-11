@@ -786,6 +786,8 @@ class _AddProductInputDialogState extends State<AddProductInputDialog> {
     super.dispose();
   }
 
+  var alreadyexist = false;
+
   void _addProduct() async {
     if (_nameController.text.isEmpty) {
       return;
@@ -802,6 +804,12 @@ class _AddProductInputDialogState extends State<AddProductInputDialog> {
       for (Location i in locations) {
         try {
           if (i.locationName == widget.location) {
+            if (_nameController.text.toLowerCase() ==
+                    i.product!.pname!.toLowerCase() &&
+                _categoryController.text.toLowerCase() ==
+                    i.product!.category!.toLowerCase()) {
+              alreadyexist = true;
+            }
             print("location found ${i.locationName}");
             print("product found1 ${i.product}");
             print("product name: ${i.product!.pname}");
@@ -825,35 +833,43 @@ class _AddProductInputDialogState extends State<AddProductInputDialog> {
         print("this is the error2 ${e}");
       }
     });
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .update({
-      'locations': FieldValue.arrayUnion([
-        {
-          "locationName": widget.location,
-          "product": {
-            "category": _categoryController.text,
-            "datetime": DateTime.now().toString(),
-            "pname": _nameController.text,
-            "quantity": "0"
-          },
-          "history": [
-            {
-              "datetime": DateTime.now().toString(),
-              "status": "in",
-              "type": "add",
-              "pname": _nameController.text
-            }
-          ],
-        }
-      ])
-    }).whenComplete(() {
+    if (alreadyexist) {
       Get.showSnackbar(GetBar(
-        message: 'Product Added',
+        message: 'Product Already Exist',
         duration: Duration(seconds: 2),
       ));
-    });
+    } else {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .update({
+        'locations': FieldValue.arrayUnion([
+          {
+            "locationName": widget.location,
+            "product": {
+              "category": _categoryController.text,
+              "datetime": DateTime.now().toString(),
+              "pname": _nameController.text,
+              "quantity": "0"
+            },
+            "history": [
+              {
+                "datetime": DateTime.now().toString(),
+                "status": "in",
+                "type": "add",
+                "pname": _nameController.text
+              }
+            ],
+          }
+        ])
+      }).whenComplete(() {
+        Get.showSnackbar(GetBar(
+          message: 'Product Added',
+          duration: Duration(seconds: 2),
+        ));
+      });
+    }
+
     // Perform your desired action with the entered data here
     Navigator.of(context).pop(); // Close the dialog box
   }
