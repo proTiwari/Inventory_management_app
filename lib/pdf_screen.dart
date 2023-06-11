@@ -12,6 +12,7 @@ import 'package:url_launcher/url_launcher.dart' as ul;
 
 import 'data.dart';
 import 'examples.dart';
+import 'global_variables.dart';
 
 class PdfScreen extends StatefulWidget {
   const PdfScreen({Key? key}) : super(key: key);
@@ -135,7 +136,7 @@ class PdfScreenState extends State<PdfScreen>
       ),
       body: PdfPreview(
         pdfFileName:
-            'Inventory_${DateTime.now().toString().split(" ")[0].split("-")[2]}/${DateTime.now().toString().split(" ")[0].split("-")[1]}/${DateTime.now().toString().split(" ")[0].split("-")[0]}.pdf',
+            'Inventory_${selectedDate.toString().split(" ")[0].split("-")[2]}/${selectedDate.toString().split(" ")[0].split("-")[1]}/${selectedDate.toString().split(" ")[0].split("-")[0]}.pdf',
         maxPageWidth: 700,
         build: (format) => examples[_tab].builder(format, _data),
         actions: actions,

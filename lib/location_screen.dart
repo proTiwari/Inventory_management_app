@@ -6,9 +6,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:xplode_management/product_list.dart';
 import 'package:xplode_management/router.dart';
-
 import 'create_order.dart';
 import 'global_variables.dart';
 import 'model/owner_model.dart';
@@ -2012,40 +2013,106 @@ class locationselectordialog extends StatefulWidget {
 }
 
 class _locationselectordialogState extends State<locationselectordialog> {
+  var dateTimeList;
   @override
   void dispose() {
     super.dispose();
   }
 
+  var locationS;
+  var widgetuniqueList = ["Select All"];
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
-    widget.uniqueList.add("Select All");
+    for (var i in widget.uniqueList) {
+      if (widgetuniqueList.contains(i) == false) {
+        widgetuniqueList.add(i);
+      }
+    }
+    locationS = widgetuniqueList[0];
   }
 
   @override
   Widget build(BuildContext context) {
-    var location = widget.uniqueList[0];
     return AlertDialog(
       title: Text('Report'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           DropdownButtonFormField<String>(
-            value: widget.uniqueList[0],
-            hint: Text('Select Product'),
-            items: widget.uniqueList.map((String customer) {
+            value: locationS,
+            hint: Text('Select Location'),
+            items: widgetuniqueList.map((String customer) {
               return DropdownMenuItem<String>(
                 value: customer,
                 child: Text(customer),
               );
             }).toList(),
             onChanged: (String? value) {
-              location = value!;
+              locationS = value!;
+              setState(() {
+                locationS = value;
+                print(locationS);
+              });
             },
           ),
+          SizedBox(
+            height: 20,
+          ),
+          SizedBox(
+            height: 30,
+            width: 300,
+            child: ElevatedButton(
+                onPressed: () async {
+                  dateTimeList = await showOmniDateTimePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate:
+                        DateTime(1600).subtract(const Duration(days: 3652)),
+                    lastDate: DateTime.now().add(
+                      const Duration(days: 3652),
+                    ),
+                    is24HourMode: true,
+                    isShowSeconds: false,
+                    minutesInterval: 1,
+                    secondsInterval: 1,
+                    borderRadius: const BorderRadius.all(Radius.circular(16)),
+                    constraints: const BoxConstraints(
+                      maxWidth: 350,
+                      maxHeight: 650,
+                    ),
+                    transitionBuilder: (context, anim1, anim2, child) {
+                      return FadeTransition(
+                        opacity: anim1.drive(
+                          Tween(
+                            begin: 0,
+                            end: 1,
+                          ),
+                        ),
+                        child: child,
+                      );
+                    },
+                    transitionDuration: const Duration(milliseconds: 200),
+                    barrierDismissible: true,
+                  );
+                  setState(() {
+                    dateTimeList;
+                  });
+                },
+                style: ButtonStyle(
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                )),
+                child: dateTimeList == null
+                    ? Center(child: Text("Select Date"))
+                    : Center(
+                        child: Text(
+                            "${dateTimeList.toString().split(":00.")[0]}"))),
+          )
         ],
       ),
       actions: <Widget>[
@@ -2058,11 +2125,19 @@ class _locationselectordialogState extends State<locationselectordialog> {
         ElevatedButton(
           child: Text('Generate Report'),
           onPressed: () async {
-            if (location == "Select All") {
+            if (dateTimeList == null) {
+              Get.showSnackbar(GetBar(
+                message: 'Please Select Date',
+                duration: Duration(seconds: 2),
+              ));
+              return;
+            }
+            print('location is sdf $locationS  $dateTimeList');
+            if (locationS == "Select All") {
               List locationList = [];
               locationlist = [];
               productlist = [];
-              print("Select All");
+              print("Select All hjhjjhj");
               try {
                 await FirebaseFirestore.instance
                     .collection('users')
@@ -2084,6 +2159,65 @@ class _locationselectordialogState extends State<locationselectordialog> {
                   for (var j in locationList) {
                     if (j != null) {
                       for (var k in locations) {
+                        // logic for getting quantity at specific date and time
+                        var quantity = "0";
+                        print("ijwofjwoejfojwe");
+                        try {
+                          print('isjfowje$dateTimeList');
+
+                          var quantitylist = [];
+                          var datelist = [];
+                          for (History n in k.history!) {
+                            try {
+                              print("weiw1");
+                              if (n.datetime == dateTimeList.toString()) {
+                                print("weiw2");
+                                quantity = n.finalquantity!;
+                                print("weiw3");
+                              } else {
+                                DateTime dt1 = DateTime.parse(n.datetime!);
+                                print("weiw4");
+                                DateTime dt2 =
+                                    DateTime.parse(dateTimeList.toString());
+                                print("weiw5");
+
+                                if (dt1.compareTo(dt2) < 0) {
+                                  print("weiw6");
+                                  quantitylist.add(n.finalquantity);
+                                  print("weiw7");
+                                  datelist.add(dt1);
+                                  print("weiw8");
+                                }
+                              }
+                            } catch (e) {
+                              print('sfsjfowijfeow: ${e}');
+                            }
+                          }
+
+                          print("date list ${datelist}");
+
+                          if (datelist.length > 0) {
+                            var max = datelist[0];
+                            for (var i = 0; i < datelist.length; i++) {
+                              try {
+                                if (datelist[i].compareTo(max) > 0) {
+                                  max = datelist[i];
+                                }
+                              } catch (e) {
+                                print("fwddefw wiejowejfo: ${e}");
+                              }
+                            }
+                            try {
+                              var index = datelist.indexOf(max);
+                              quantity = quantitylist[index];
+                            } catch (e) {
+                              print("jkjkj wiejowejfo: ${e}");
+                            }
+                          }
+                        } catch (e) {
+                          print("printing wiejowejfo: ${e}");
+                        }
+
                         if (j == k.locationName) {
                           count++;
                           if (count > 14 || recentlocation != j) {
@@ -2094,7 +2228,7 @@ class _locationselectordialogState extends State<locationselectordialog> {
                                 [
                                   k.product!.pname,
                                   k.product!.category,
-                                  k.product!.quantity
+                                  quantity
                                 ]
                               ]);
                             }
@@ -2105,14 +2239,14 @@ class _locationselectordialogState extends State<locationselectordialog> {
                                 [
                                   k.product!.pname,
                                   k.product!.category,
-                                  k.product!.quantity
+                                  quantity
                                 ]
                               ]);
                             } else {
                               product[product.length - 1].add([
                                 k.product!.pname,
                                 k.product!.category,
-                                k.product!.quantity
+                                quantity
                               ]);
                             }
                           }
@@ -2124,12 +2258,10 @@ class _locationselectordialogState extends State<locationselectordialog> {
                         }
                       }
                     }
-
-                    print("location name : ${j} : ${count} : ${product}");
                   }
-                  print("product: ${product}");
                   productlist = [];
                   productlist = product;
+                  selectedDate = dateTimeList;
                 }).whenComplete(() {
                   Get.toNamed(AppRoutes.pdfscreen);
                 });
@@ -2157,39 +2289,83 @@ class _locationselectordialogState extends State<locationselectordialog> {
                 String recentlocation = "";
                 for (var k in locations) {
                   //
-                  if (location == k.locationName) {
+                  var quantity = "0";
+                  print("ijwofjwoejfojwe");
+                  try {
+                    print('isjfowje$dateTimeList');
+
+                    var quantitylist = [];
+                    var datelist = [];
+                    for (History n in k.history!) {
+                      try {
+                        print("weiw1");
+                        if (n.datetime == dateTimeList.toString()) {
+                          print("weiw2");
+                          quantity = n.finalquantity!;
+                          print("weiw3");
+                        } else {
+                          DateTime dt1 = DateTime.parse(n.datetime!);
+                          print("weiw4");
+                          DateTime dt2 =
+                              DateTime.parse(dateTimeList.toString());
+                          print("weiw5");
+
+                          if (dt1.compareTo(dt2) < 0) {
+                            print("weiw6");
+                            quantitylist.add(n.finalquantity);
+                            print("weiw7");
+                            datelist.add(dt1);
+                            print("weiw8");
+                          }
+                        }
+                      } catch (e) {
+                        print('sfsjfowijfeow: ${e}');
+                      }
+                    }
+
+                    if (datelist.length > 0) {
+                      var max = datelist[0];
+                      for (var i = 0; i < datelist.length; i++) {
+                        try {
+                          if (datelist[i].compareTo(max) > 0) {
+                            max = datelist[i];
+                          }
+                        } catch (e) {
+                          print("fwddefw wiejowejfo: ${e}");
+                        }
+                      }
+                      try {
+                        var index = datelist.indexOf(max);
+                        quantity = quantitylist[index];
+                      } catch (e) {
+                        print("jkjkj wiejowejfo: ${e}");
+                      }
+                    }
+                  } catch (e) {
+                    print("printing wiejowejfo: ${e}");
+                  }
+                  if (locationS == k.locationName) {
                     count++;
-                    if (count > 14 || recentlocation != location) {
+                    if (count > 14 || recentlocation != locationS) {
                       count = 1;
                       if (count == 1) {
                         product.add([
-                          [
-                            k.product!.pname,
-                            k.product!.category,
-                            k.product!.quantity
-                          ]
+                          [k.product!.pname, k.product!.category, quantity]
                         ]);
                       }
                     } else {
                       if (count == 1) {
                         product.add([
-                          [
-                            k.product!.pname,
-                            k.product!.category,
-                            k.product!.quantity
-                          ]
+                          [k.product!.pname, k.product!.category, quantity]
                         ]);
                       } else {
-                        product[product.length - 1].add([
-                          k.product!.pname,
-                          k.product!.category,
-                          k.product!.quantity
-                        ]);
+                        product[product.length - 1].add(
+                            [k.product!.pname, k.product!.category, quantity]);
                       }
                     }
                     try {
-                      locationlist = [location];
-                      recentlocation = location;
+                      locationlist = [locationS];
+                      recentlocation = locationS;
                     } catch (e) {
                       print(e);
                     }
@@ -2197,6 +2373,7 @@ class _locationselectordialogState extends State<locationselectordialog> {
                 }
                 print("product: ${product}");
                 productlist = product;
+                selectedDate = dateTimeList;
               }).whenComplete(() {
                 Get.toNamed(AppRoutes.pdfscreen);
               });

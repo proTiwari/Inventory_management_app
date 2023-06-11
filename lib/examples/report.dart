@@ -141,7 +141,7 @@ Future<Uint8List> generateReport(
                                     fontSize: 16,
                                     fontWeight: pw.FontWeight.normal)),
                         pw.Text(
-                            "Date :- ${DateTime.now().toString().split(" ")[0].split("-")[2]}/${DateTime.now().toString().split(" ")[0].split("-")[1]}/${DateTime.now().toString().split(" ")[0].split("-")[0]}",
+                            "Date :- ${selectedDate.toString().split(" ")[0].split("-")[2]}/${selectedDate.toString().split(" ")[0].split("-")[1]}/${selectedDate.toString().split(" ")[0].split("-")[0]}",
                             style: pw.TextStyle(
                                 fontSize: 16,
                                 fontWeight: pw.FontWeight.normal)),
