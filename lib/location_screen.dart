@@ -2428,25 +2428,29 @@ class _LocationInputDialogState extends State<LocationInputDialog> {
         .get()
         .then((value) {
       List<Location> locations = [];
-      for (var k in value.data()!['locations']) {
-        locations.add(Location.fromJson(k));
-      }
-      print(locations.length);
-      for (Location i in locations) {
-        try {
-          if (i.locationName == locationName) {
-            Get.showSnackbar(GetBar(
-              message: 'Location Already Exists',
-              duration: Duration(seconds: 2),
-            ));
-            print("i-locationName${i.locationName}");
-            print(locationName);
-            alreadyExists = true;
-            break;
-          }
-        } catch (e) {
-          print(e);
+      try {
+        for (var k in value.data()!['locations']) {
+          locations.add(Location.fromJson(k));
         }
+        print(locations.length);
+        for (Location i in locations) {
+          try {
+            if (i.locationName == locationName) {
+              Get.showSnackbar(GetBar(
+                message: 'Location Already Exists',
+                duration: Duration(seconds: 2),
+              ));
+              print("i-locationName${i.locationName}");
+              print(locationName);
+              alreadyExists = true;
+              break;
+            }
+          } catch (e) {
+            print(e);
+          }
+        }
+      } catch (e) {
+        print(e);
       }
     });
     if (alreadyExists == true) {

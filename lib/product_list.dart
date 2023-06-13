@@ -602,7 +602,7 @@ class _ProductlistWidgetState extends State<ProductlistWidget> {
                                                                                               }
                                                                                             }
                                                                                             locations.removeWhere((e) => toRemove.contains(e));
-                                                                                          
+
                                                                                             FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).update({
                                                                                               "locations": locations
                                                                                             });
@@ -806,6 +806,9 @@ class _AddProductInputDialogState extends State<AddProductInputDialog> {
         locations.add(Location.fromJson(k));
       }
       for (Location i in locations) {
+        if (i.product!.pname == null || i.product!.pname!.isEmpty || i.product == null) {
+          locations.remove(i);
+        }
         try {
           if (i.locationName == widget.location) {
             if (_nameController.text.toLowerCase() ==
@@ -819,7 +822,7 @@ class _AddProductInputDialogState extends State<AddProductInputDialog> {
             print("product name: ${i.product!.pname}");
             if (i.product!.pname == null) {
               print("product found2 ${i.product}");
-              
+
               locations.remove(i);
             }
           }
@@ -832,7 +835,7 @@ class _AddProductInputDialogState extends State<AddProductInputDialog> {
             .collection("users")
             .doc(FirebaseAuth.instance.currentUser!.uid)
             .update({
-          "locations": locations.map((locations) => locations.toJson()).toList()
+          "locations": locations.map((location) => location.toJson()).toList()
         });
       } catch (e) {
         print("this is the error2 ${e}");

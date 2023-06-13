@@ -24,35 +24,34 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   navigate() async {
-    await Future.delayed(Duration(seconds: 3));
-    var status;
+    bool status = false;
     try {
-      FirebaseAuth.instance.authStateChanges().listen((User? user) async {
-        if (user == null) {
-          status = false;
-        } else {
-          status = true;
-        }
-      });
+      await FirebaseAuth.instance.currentUser!.reload();
+      if (FirebaseAuth.instance.currentUser != null) {
+        status = true;
+      }
     } catch (e) {
       print(e);
     }
-
     print(status);
     if (status) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => LocationlistWidget(),
-        ),
-      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LocationlistWidget(),
+          ),
+        );
+      });
     } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => LoginpageWidget(),
-        ),
-      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LoginpageWidget(),
+          ),
+        );
+      });
     }
     // Navigator.pushReplacement(
     //   context,
