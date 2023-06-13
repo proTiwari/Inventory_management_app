@@ -154,9 +154,9 @@ Future<Uint8List> generateReport(
                     data: List<List<dynamic>>.generate(
                       dataTable[i].length,
                       (index) => <dynamic>[
-                        dataTable[i][index][0],
-                        dataTable[i][index][1],
-                        dataTable[i][index][2]
+                        dataTable[i][index][0] ?? 0,
+                        dataTable[i][index][1] ?? 0,
+                        dataTable[i][index][2] ?? 0
                       ],
                     ),
                     headerStyle: pw.TextStyle(

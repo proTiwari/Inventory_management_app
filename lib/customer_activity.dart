@@ -8,26 +8,25 @@ import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'model/owner_model.dart';
 import 'package:intl/intl.dart';
 
-class ProductActivitylistWidget extends StatefulWidget {
-  const ProductActivitylistWidget({Key? key}) : super(key: key);
+class ConsumerActivitylistWidget extends StatefulWidget {
+  const ConsumerActivitylistWidget({Key? key}) : super(key: key);
 
   @override
-  _ProductActivitylistWidgetState createState() =>
-      _ProductActivitylistWidgetState();
+  _ConsumerActivitylistWidgetState createState() =>
+      _ConsumerActivitylistWidgetState();
 }
 
-class _ProductActivitylistWidgetState extends State<ProductActivitylistWidget> {
+class _ConsumerActivitylistWidgetState
+    extends State<ConsumerActivitylistWidget> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final _unfocusNode = FocusNode();
-  var location;
-  Product productdata = Product();
+  var customername;
 
   @override
   void initState() {
     super.initState();
     getAllLocations();
-    location = Get.arguments[1];
-    productdata = Get.arguments[0];
+    customername = Get.arguments;
   }
 
   List<String> allLocations = [];
@@ -70,34 +69,6 @@ class _ProductActivitylistWidgetState extends State<ProductActivitylistWidget> {
     DateTime parsedDate2 = DateFormat('dd-MM-yyyy').parse(date2);
 
     return parsedDate1.isAfter(parsedDate2);
-  }
-
-  Widget sendLocationList() {
-    return DropdownButtonFormField<String>(
-      isExpanded: true,
-      decoration: InputDecoration(
-          enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(
-                  color: Color.fromARGB(255, 255, 255, 255), width: 0)),
-          focusColor: Colors.white,
-          fillColor: Colors.white,
-          hoverColor: Colors.white),
-      value: location,
-      hint: Text('Select location',
-          style: TextStyle(color: Color.fromARGB(255, 0, 0, 0), fontSize: 18)),
-      items: allLocations.map((String customer) {
-        return DropdownMenuItem<String>(
-          value: customer,
-          child: Text(customer,
-              style: TextStyle(color: Color.fromARGB(255, 0, 0, 0))),
-        );
-      }).toList(),
-      onChanged: (String? value) {
-        setState(() {
-          location = value!;
-        });
-      },
-    );
   }
 
   bool isDateLessThan(String date1, String date2) {
@@ -235,8 +206,6 @@ class _ProductActivitylistWidgetState extends State<ProductActivitylistWidget> {
                                                           255, 0, 0, 0)),
                                                 )),
                                     ),
-                                    Container(
-                                        width: 160, child: sendLocationList())
                                   ],
                                 ),
                               ),
@@ -265,17 +234,25 @@ class _ProductActivitylistWidgetState extends State<ProductActivitylistWidget> {
                                           OwnerModel data = OwnerModel.fromJson(
                                               snapshot.data!.data()
                                                   as Map<String, dynamic>);
-
+                                          print(
+                                              "customer nsoiefjfwojefowie ${customername}");
                                           for (Location i in data.locations!) {
-                                            if (i.locationName == location) {
-                                              print("fijoefowie: ${i.history}");
-
-                                              for (var j in i.history!) {
+                                            print("fiwjeofjwoiejfw");
+                                            print(i.history!.length);
+                                            for (var j in i.history!) {
+                                              print("j isfjiowe ${j}");
+                                              if (j.customername ==
+                                                  customername) {
+                                                print(
+                                                    "customer nsoiefjowie ${customername}");
                                                 datalist.add(j);
                                               }
                                             }
                                           }
+
                                           // code for filtering through date
+                                          print(
+                                              "showing the data: ${datalist}");
 
                                           for (History k in datalist) {
                                             try {
@@ -371,16 +348,10 @@ class _ProductActivitylistWidgetState extends State<ProductActivitylistWidget> {
                                               }
                                               if (isdatelessthan &&
                                                   isdategreaterthan) {
-                                                print("k.pname: ${k.pname}");
+                                                datalistwithfilteredvalue
+                                                    .add(k);
                                                 print(
-                                                    "productdata.pname: ${productdata.pname}");
-                                                if (k.pname ==
-                                                    productdata.pname) {
-                                                  datalistwithfilteredvalue
-                                                      .add(k);
-                                                  print(
-                                                      "iwoejfowjeio $datalistwithfilteredvalue");
-                                                }
+                                                    "iwoejfowjeio $datalistwithfilteredvalue");
                                               }
                                             } catch (e) {
                                               print("errorid weifjowiej: $e");
@@ -630,7 +601,7 @@ class _ProductActivitylistWidgetState extends State<ProductActivitylistWidget> {
                                                                                     fontSize: 11,
                                                                                     fontWeight: FontWeight.normal,
                                                                                   ))
-                                                                              :Column(
+                                                                              : Column(
                                                                                   crossAxisAlignment: CrossAxisAlignment.end,
                                                                                   mainAxisAlignment: MainAxisAlignment.end,
                                                                                   children: [

@@ -48,6 +48,7 @@ dependencies:
   url_launcher: ^6.1.11
   open_file: ^3.2.1
   printing: 5.4.3
+  shared_preferences: ^2.1.2
 
 dev_dependencies:
   flutter_test:

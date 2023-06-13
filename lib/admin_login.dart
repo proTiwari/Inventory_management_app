@@ -5,6 +5,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:xplode_management/router.dart';
 import 'package:xplode_management/utils.dart';
 
@@ -78,6 +79,9 @@ class _AdminLoginpageWidgetState extends State<AdminLoginpageWidget>
             icon: const Icon(Icons.add_alert),
           );
         });
+        SharedPreferences.setMockInitialValues({});
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
         Get.toNamed(AppRoutes.locationscreen);
       } catch (e) {
         Get.snackbar(
@@ -107,6 +111,9 @@ class _AdminLoginpageWidgetState extends State<AdminLoginpageWidget>
             icon: const Icon(Icons.add_alert),
           );
         });
+        SharedPreferences.setMockInitialValues({});
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
         Get.toNamed(AppRoutes.adminpanel);
       } catch (e) {
         Get.snackbar(

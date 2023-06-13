@@ -621,13 +621,26 @@ class _ActivitylistWidgetState extends State<ActivitylistWidget> {
                                                                                     fontSize: 11,
                                                                                     fontWeight: FontWeight.normal,
                                                                                   ))
-                                                                              : Text('Sold Quantity (${datalistwithfilteredvalue[index].initialquantity} - ${int.parse(datalistwithfilteredvalue[index].initialquantity.toString()) - int.parse(datalistwithfilteredvalue[index].finalquantity.toString())} = ${datalistwithfilteredvalue[index].finalquantity})',
-                                                                                  style: TextStyle(
-                                                                                    fontFamily: 'Plus Jakarta Sans',
-                                                                                    color: Color.fromARGB(255, 204, 90, 33),
-                                                                                    fontSize: 11,
-                                                                                    fontWeight: FontWeight.normal,
-                                                                                  )),
+                                                                              : Column(
+                                                                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                                                                  mainAxisAlignment: MainAxisAlignment.end,
+                                                                                  children: [
+                                                                                    Text('Sold Quantity ${int.parse(datalistwithfilteredvalue[index].initialquantity.toString()) - int.parse(datalistwithfilteredvalue[index].finalquantity.toString())}',
+                                                                                        style: TextStyle(
+                                                                                          fontFamily: 'Plus Jakarta Sans',
+                                                                                          color: Color.fromARGB(255, 204, 90, 33),
+                                                                                          fontSize: 11,
+                                                                                          fontWeight: FontWeight.normal,
+                                                                                        )),
+                                                                                    Text('Available: ${datalistwithfilteredvalue[index].initialquantity} - ${int.parse(datalistwithfilteredvalue[index].initialquantity.toString()) - int.parse(datalistwithfilteredvalue[index].finalquantity.toString())} = ${datalistwithfilteredvalue[index].finalquantity}, ${datalistwithfilteredvalue[index].datetime.toString().split(" ")[0]}',
+                                                                                        style: TextStyle(
+                                                                                          fontFamily: 'Plus Jakarta Sans',
+                                                                                          color: Color.fromARGB(255, 204, 90, 33),
+                                                                                          fontSize: 11,
+                                                                                          fontWeight: FontWeight.normal,
+                                                                                        )),
+                                                                                  ],
+                                                                                ), //
                                                                     ],
                                                                   ),
                                                                   datalistwithfilteredvalue[index]

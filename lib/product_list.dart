@@ -360,12 +360,14 @@ class _ProductlistWidgetState extends State<ProductlistWidget> {
                                                                                         onPressed: () {
                                                                                           FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).get().then((value) {
                                                                                             List<dynamic> locations = value.data()!["locations"];
-
+                                                                                            var toRemove = [];
                                                                                             for (var i in locations) {
                                                                                               if (i["product"]['pname'] == datalist[index].pname!) {
-                                                                                                locations.remove(i);
+                                                                                                toRemove.add(i);
                                                                                               }
                                                                                             }
+                                                                                            locations.removeWhere((e) => toRemove.contains(e));
+
                                                                                             FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).update({
                                                                                               "locations": locations
                                                                                             });
@@ -593,12 +595,14 @@ class _ProductlistWidgetState extends State<ProductlistWidget> {
                                                                                         onPressed: () {
                                                                                           FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).get().then((value) {
                                                                                             List<dynamic> locations = value.data()!["locations"];
-
+                                                                                            var toRemove = [];
                                                                                             for (var i in locations) {
                                                                                               if (i["product"]['pname'] == matchQuery[index].pname!) {
-                                                                                                locations.remove(i);
+                                                                                                toRemove.add(i);
                                                                                               }
                                                                                             }
+                                                                                            locations.removeWhere((e) => toRemove.contains(e));
+                                                                                          
                                                                                             FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).update({
                                                                                               "locations": locations
                                                                                             });
@@ -815,6 +819,7 @@ class _AddProductInputDialogState extends State<AddProductInputDialog> {
             print("product name: ${i.product!.pname}");
             if (i.product!.pname == null) {
               print("product found2 ${i.product}");
+              
               locations.remove(i);
             }
           }
@@ -839,35 +844,42 @@ class _AddProductInputDialogState extends State<AddProductInputDialog> {
         duration: Duration(seconds: 2),
       ));
     } else {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .update({
-        'locations': FieldValue.arrayUnion([
-          {
-            "locationName": widget.location,
-            "product": {
-              "category": _categoryController.text,
-              "datetime": DateTime.now().toString(),
-              "pname": _nameController.text,
-              "quantity": "0"
-            },
-            "history": [
-              {
-                "datetime": DateTime.now().toString(),
-                "status": "in",
-                "type": "add",
-                "pname": _nameController.text
-              }
-            ],
-          }
-        ])
-      }).whenComplete(() {
+      if (_nameController.text == '' || _categoryController.text == '') {
         Get.showSnackbar(GetBar(
-          message: 'Product Added',
+          message: 'Product Name OR Brand Name Cannot Be Empty!',
           duration: Duration(seconds: 2),
         ));
-      });
+      } else {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .update({
+          'locations': FieldValue.arrayUnion([
+            {
+              "locationName": widget.location,
+              "product": {
+                "category": _categoryController.text,
+                "datetime": DateTime.now().toString(),
+                "pname": _nameController.text,
+                "quantity": "0"
+              },
+              "history": [
+                {
+                  "datetime": DateTime.now().toString(),
+                  "status": "in",
+                  "type": "add",
+                  "pname": _nameController.text
+                }
+              ],
+            }
+          ])
+        }).whenComplete(() {
+          Get.showSnackbar(GetBar(
+            message: 'Product Added',
+            duration: Duration(seconds: 2),
+          ));
+        });
+      }
     }
 
     // Perform your desired action with the entered data here
