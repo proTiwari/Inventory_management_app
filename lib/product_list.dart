@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_connect/http/src/utils/utils.dart';
@@ -22,12 +23,15 @@ class _ProductlistWidgetState extends State<ProductlistWidget> {
   TextEditingController editTextController = TextEditingController();
   TextEditingController locationsearchcontroller = TextEditingController();
   List<Product> matchQuery = [];
+
   @override
   void initState() {
     super.initState();
+    print("jnknkjnihuiuhiuh");
 
     location = Get.arguments;
     editTextController.text = "";
+
     // testfun();
     locationsearchcontroller.addListener(() {
       print("printing text ${locationsearchcontroller.text}");
@@ -42,6 +46,28 @@ class _ProductlistWidgetState extends State<ProductlistWidget> {
         matchQuery;
       });
       print(matchQuery);
+    });
+  }
+
+  removeallemptyhistory() async {
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then((value) {
+      var locations = value.data()!["locations"];
+      print("lsldddddd: ${locations}");
+      var toremove = [];
+      for (var i in locations) {
+        if (i["history"].length == 0) {
+          toremove.add(i);
+        }
+      }
+      locations.removeWhere((e) => toremove.contains(e));
+      FirebaseFirestore.instance
+          .collection("users")
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .update({"locations": locations});
     });
   }
 
@@ -244,7 +270,7 @@ class _ProductlistWidgetState extends State<ProductlistWidget> {
                                                                                 padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
                                                                                 child: Row(
                                                                                   children: [
-                                                                                    Text('${datalist[index].pname} ',
+                                                                                    Text('${datalist[index].pname}${'\n'}(${datalist[index].category})',
                                                                                         style: TextStyle(
                                                                                           fontFamily: 'Plus Jakarta Sans',
                                                                                           color: Color(0xFF14181B),
@@ -479,7 +505,7 @@ class _ProductlistWidgetState extends State<ProductlistWidget> {
                                                                                 padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
                                                                                 child: Row(
                                                                                   children: [
-                                                                                    Text('${matchQuery[index].pname} ',
+                                                                                    Text('${matchQuery[index].pname}${'\n'}(${datalist[index].category})',
                                                                                         style: TextStyle(
                                                                                           fontFamily: 'Plus Jakarta Sans',
                                                                                           color: Color(0xFF14181B),
@@ -790,7 +816,66 @@ class _AddProductInputDialogState extends State<AddProductInputDialog> {
     super.dispose();
   }
 
+  @override
+  void initState() {
+    super.initState();
+    removeallemptyhistory();
+  }
+
+  removeallemptyhistory() async {
+    print('ifjweijfowjfiow');
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then((value) async {
+      List<Location> locations = (value.data()!['locations'] as List<dynamic>)
+          .map((e) => Location.fromJson(e))
+          .toList();
+      print("lsldddddd: ${locations}");
+      List<Location> toremove1 = [];
+      List<Location> topreremove1 = [];
+      for (Location j in locations) {
+        if (j.history!.isEmpty) {
+          topreremove1.add(j);
+        }
+      }
+
+      for (Location k in topreremove1) {
+        int count = 0;
+        for (Location m in locations) {
+          if (k.locationName == m.locationName) {
+            count++;
+            if (count > 1) {
+              try {
+                print("kjjjjjjjjj  ${k.locationName}");
+                toremove1.add(k);
+              } catch (e) {
+                print("wjefoweo$e");
+              }
+            }
+          }
+        }
+      }
+      try {
+        // ignore: iterable_contains_unrelated_type
+        locations.removeWhere((e) => toremove1.contains(e));
+        await FirebaseFirestore.instance
+            .collection("users")
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .update({"locations": locations.map((e) => e.toJson()).toList()})
+            .whenComplete(() => print("done"))
+            .onError((error, stackTrace) => print("error: $error"));
+      } catch (e) {
+        print("okwefoiwj $e");
+      }
+    });
+  }
+
   var alreadyexist = false;
+  List<Location> toremove = [];
+  List<Location> topreremove = [];
+  List<Location> locations = [];
 
   void _addProduct() async {
     if (_nameController.text.isEmpty) {
@@ -800,15 +885,29 @@ class _AddProductInputDialogState extends State<AddProductInputDialog> {
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .get()
-        .then((value) {
-      List<Location> locations = [];
+        .then((value) async {
       for (var k in value.data()!['locations']) {
         locations.add(Location.fromJson(k));
       }
-      for (Location i in locations) {
-        if (i.product!.pname == null || i.product!.pname!.isEmpty || i.product == null) {
-          locations.remove(i);
+      for (Location j in locations) {
+        if (j.history!.isEmpty) {
+          topreremove.add(j);
         }
+      }
+
+      for (var k in topreremove) {
+        int count = 0;
+        for (var m in locations) {
+          if (k.locationName == m.locationName) {
+            count++;
+            if (count > 1) {
+              print("kjjjjjjjjj  ${k.locationName}");
+              toremove.add(m);
+            }
+          }
+        }
+      }
+      for (Location i in locations) {
         try {
           if (i.locationName == widget.location) {
             if (_nameController.text.toLowerCase() ==
@@ -822,24 +921,23 @@ class _AddProductInputDialogState extends State<AddProductInputDialog> {
             print("product name: ${i.product!.pname}");
             if (i.product!.pname == null) {
               print("product found2 ${i.product}");
-
-              locations.remove(i);
             }
           }
         } catch (e) {
           print("this is the error ${e}");
         }
       }
-      try {
-        FirebaseFirestore.instance
-            .collection("users")
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .update({
-          "locations": locations.map((location) => location.toJson()).toList()
-        });
-      } catch (e) {
-        print("this is the error2 ${e}");
-      }
+      // try {
+
+      //   await FirebaseFirestore.instance
+      //       .collection("users")
+      //       .doc(FirebaseAuth.instance.currentUser!.uid)
+      //       .update({
+      //     "locations": locations.map((location) => location.toJson()).toList()
+      //   });
+      // } catch (e) {
+      //   print("this is the error2 ${e}");
+      // }
     });
     if (alreadyexist) {
       Get.showSnackbar(GetBar(
@@ -853,6 +951,7 @@ class _AddProductInputDialogState extends State<AddProductInputDialog> {
           duration: Duration(seconds: 2),
         ));
       } else {
+        locations.removeWhere((element) => toremove.contains(element));
         await FirebaseFirestore.instance
             .collection('users')
             .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -972,7 +1071,7 @@ class _EditProductInputDialogState extends State<EditProductInputDialog> {
           print("started3");
           if (i.locationName == location) {
             setState(() {
-              productlist.add(i.product!.pname!);
+              productlist.add("${i.product!.pname!} (${i.product!.category!})");
               productdatalist.add(i.product!);
             });
           }
@@ -986,7 +1085,7 @@ class _EditProductInputDialogState extends State<EditProductInputDialog> {
   void _editProduct() async {
     try {
       print("isofwjeo1");
-      String productName = _nameController.text;
+      String productName = _nameController.text.toString().split('(')[0].trim();
       print("isofwjeo2");
       await FirebaseFirestore.instance
           .collection("users")
@@ -1033,8 +1132,14 @@ class _EditProductInputDialogState extends State<EditProductInputDialog> {
                       finalquantity: finalquantity,
                       status: "in",
                       type: "edit",
-                      pname: _nameController.text,
+                      pname:
+                          _nameController.text.toString().split('(')[0].trim(),
                       datetime: DateTime.now().toString(),
+                      brand: _nameController.text
+                          .toString()
+                          .split('(')[1]
+                          .split(')')[0]
+                          .trim(),
                       quantity: finalquantity,
                       description: _descriptionController.text,
                       lotid: _numberController.text));
@@ -1046,7 +1151,15 @@ class _EditProductInputDialogState extends State<EditProductInputDialog> {
                         finalquantity: finalquantity,
                         status: "in",
                         type: "edit",
-                        pname: _nameController.text,
+                        pname: _nameController.text
+                            .toString()
+                            .split('(')[0]
+                            .trim(),
+                        brand: _nameController.text
+                            .toString()
+                            .split('(')[1]
+                            .split(')')[0]
+                            .trim(),
                         datetime: DateTime.now().toString(),
                         quantity: finalquantity,
                         description: _descriptionController.text,
@@ -1123,14 +1236,12 @@ class _EditProductInputDialogState extends State<EditProductInputDialog> {
           ),
           TextField(
             controller: _numberController,
-            keyboardType: TextInputType.phone,
             decoration: InputDecoration(
               labelText: 'Lot Id',
             ),
           ),
           TextField(
             controller: _descriptionController,
-            keyboardType: TextInputType.phone,
             decoration: InputDecoration(
               labelText: 'Description',
             ),

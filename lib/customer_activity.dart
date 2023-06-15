@@ -573,7 +573,7 @@ class _ConsumerActivitylistWidgetState
                                                                             .spaceBetween,
                                                                     children: [
                                                                       Text(
-                                                                          '${datalistwithfilteredvalue[index].pname} ',
+                                                                          '${datalistwithfilteredvalue[index].pname}${"\n"}(${datalistwithfilteredvalue[index].brand})',
                                                                           style:
                                                                               TextStyle(
                                                                             color:

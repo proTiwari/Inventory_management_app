@@ -601,17 +601,28 @@ class _ProductActivitylistWidgetState extends State<ProductActivitylistWidget> {
                                                                         MainAxisAlignment
                                                                             .spaceBetween,
                                                                     children: [
-                                                                      Text(
-                                                                          '${datalistwithfilteredvalue[index].pname} ',
-                                                                          style:
-                                                                              TextStyle(
-                                                                            color:
-                                                                                Color(0xFF4B39EF),
-                                                                            fontSize:
-                                                                                11,
-                                                                            fontWeight:
-                                                                                FontWeight.normal,
-                                                                          )),
+                                                                      Column(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.start,
+                                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                                        children: [
+                                                                          Text(
+                                                                              '${datalistwithfilteredvalue[index].pname}${"\n"}(${datalistwithfilteredvalue[index].brand})',
+                                                                              style: TextStyle(
+                                                                                color: Color(0xFF4B39EF),
+                                                                                fontSize: 11,
+                                                                                fontWeight: FontWeight.normal,
+                                                                              )),
+                                                                          datalistwithfilteredvalue[index].status == "in"
+                                                                              ? Text('Description: ${datalistwithfilteredvalue[index].description}',
+                                                                                  style: TextStyle(
+                                                                                    color: Color(0xFF4B39EF),
+                                                                                    fontSize: 11,
+                                                                                    fontWeight: FontWeight.normal,
+                                                                                  ))
+                                                                              : Container()
+                                                                        ],
+                                                                      ),
                                                                       datalistwithfilteredvalue[index].type ==
                                                                               "add"
                                                                           ? Text(
@@ -630,7 +641,7 @@ class _ProductActivitylistWidgetState extends State<ProductActivitylistWidget> {
                                                                                     fontSize: 11,
                                                                                     fontWeight: FontWeight.normal,
                                                                                   ))
-                                                                              :Column(
+                                                                              : Column(
                                                                                   crossAxisAlignment: CrossAxisAlignment.end,
                                                                                   mainAxisAlignment: MainAxisAlignment.end,
                                                                                   children: [

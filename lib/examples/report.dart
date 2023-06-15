@@ -17,6 +17,8 @@
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
+import 'package:get/get_navigation/src/routes/default_transitions.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -26,39 +28,10 @@ import '../data.dart';
 
 Future<Uint8List> generateReport(
     PdfPageFormat pageFormat, CustomData data) async {
-  const tableHeaders = ['PRODUCT', 'BRAND', 'QTY'];
-
-  // var dataTable = [
-  //   [
-  //     ['Phone', '80', 95],
-  //     ['Internet', 250, 230],
-  //     ['Electricity', 300, 375],
-  //     ['Movies', 85, 80],
-  //     ['Food', 300, 350],
-  //     ['Fuel', 650, 550],
-  //     ['Insurance', 250, 310],
-  //     ['Phone', 80, 95],
-  //     ['Internet', 250, 230],
-  //     ['Electricity', 300, 375],
-  //     ['Movies', 85, 80],
-  //     ['Electricity', 300, 375],
-  //     ['Movies', 85, 80],
-  //     ['Movies', 85, 80],
-  //   ],
-  //   [
-  //     ['Phone', 80, 95],
-  //     ['Internet', 250, 230],
-  //     ['Electricity', 300, 375],
-  //   ],
-  //   [
-  //     ['Phone', 80, 95],
-  //     ['Internet', 250, 230],
-  //     ['Electricity', 300, 375],
-  //   ],
-  // ];
+  const tableHeaders = ['SERIAL NO.', 'PRODUCT', 'BRAND', 'QTY'];
   var dataTable = productlist;
 
-  const baseColor = PdfColors.cyan;
+  const baseColor = PdfColors.grey600;
 
   // Create a PDF document.
   final document = pw.Document(
@@ -70,43 +43,10 @@ Future<Uint8List> generateReport(
     bold: await PdfGoogleFonts.openSansBold(),
   );
   List datatablentity = [];
-  var table = pw.TableHelper.fromTextArray(
-    cellHeight: 38,
-    border: null,
-    headers: tableHeaders,
-    data: List<List<dynamic>>.generate(
-      datatablentity.length,
-      (index) => <dynamic>[
-        datatablentity[index][0],
-        datatablentity[index][1],
-        datatablentity[index][2]
-      ],
-    ),
-    headerStyle: pw.TextStyle(
-      color: PdfColors.white,
-      fontSize: 17,
-      fontWeight: pw.FontWeight.bold,
-    ),
-    headerDecoration: const pw.BoxDecoration(
-      color: baseColor,
-    ),
-    rowDecoration: const pw.BoxDecoration(
-      border: pw.Border(
-        bottom: pw.BorderSide(
-          color: baseColor,
-          width: .5,
-        ),
-      ),
-    ),
-    cellAlignment: pw.Alignment.centerRight,
-    cellAlignments: {
-      0: pw.Alignment.center,
-      1: pw.Alignment.center,
-      2: pw.Alignment.center,
-      3: pw.Alignment.center
-    },
-  );
+
   var finalloop = dataTable.length;
+  var tempindex = 0;
+  var templocation = '';
   for (var i = 0; i < finalloop; i++) {
     document.addPage(
       pw.Page(
@@ -122,7 +62,14 @@ Future<Uint8List> generateReport(
             PdfColors.purple300,
             PdfColors.lime300,
           ];
-
+          if (templocation == locationlist[i]) {
+            print("iwefiowjeofjwo $templocation");
+            tempindex = 14;
+          } else {
+            print("fojweo $templocation");
+            tempindex = 0;
+          }
+          templocation = locationlist[i];
           return pw.Column(children: [
             pw.Expanded(
               flex: 55,
@@ -149,23 +96,23 @@ Future<Uint8List> generateReport(
                   pw.SizedBox(height: 10),
                   pw.TableHelper.fromTextArray(
                     cellHeight: 38,
-                    border: null,
                     headers: tableHeaders,
                     data: List<List<dynamic>>.generate(
                       dataTable[i].length,
                       (index) => <dynamic>[
+                        "${tempindex + index + 1}",
                         dataTable[i][index][0] ?? 0,
                         dataTable[i][index][1] ?? 0,
                         dataTable[i][index][2] ?? 0
                       ],
                     ),
                     headerStyle: pw.TextStyle(
-                      color: PdfColors.white,
-                      fontSize: 17,
-                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.black,
+                      fontSize: 14,
+                      fontWeight: pw.FontWeight.normal,
                     ),
                     headerDecoration: const pw.BoxDecoration(
-                      color: baseColor,
+                      color: PdfColors.grey400,
                     ),
                     rowDecoration: const pw.BoxDecoration(
                       border: pw.Border(

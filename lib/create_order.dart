@@ -29,6 +29,8 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
   List<TextEditingController> _brandcontrollers = [];
   List<TextEditingController> _productcontrollers = [];
   List<TextEditingController> _quantitycontrollers = [];
+  TextEditingController _quantityController = TextEditingController();
+  var tempquantity1;
 
   @override
   void initState() {
@@ -49,7 +51,6 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
   List<Map> mapdata = [];
   var tempproduct;
   var tempbrand;
-  var tempquantity;
   List tempcompletebrandlist = [];
   int tabedcontainerindex = 0;
 
@@ -57,6 +58,7 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
   List<String> allCustomers = ["Select Customer"];
   List allproductname = [];
   var daata = [];
+  var totaldata = [];
   Map<String, Map<String, List<String>>> brandmap = {};
   getAllLocations() async {
     await FirebaseFirestore.instance
@@ -67,6 +69,7 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
       var locations = value.data()!['locations'].map((e) {
         return Location.fromJson(e);
       }).toList();
+      totaldata = locations;
       for (Location i in locations) {
         try {
           if (brandmap.containsKey(i.locationName)) {
@@ -307,36 +310,34 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
   }
 
   Widget buildProductOvalContainer(Color color, text, index) {
-    return Container(
+    return Card(
+      color: Colors.deepPurple,
       margin: EdgeInsets.all(8.0),
-      width: 140.0,
-      height: 70.0,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.0),
-        color: color,
-      ),
-      child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Center(
-              child: Text(
-                text,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16.0,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Center(
+                child: Text(
+                  text,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.0,
+                  ),
                 ),
               ),
-            ),
-            GestureDetector(
-                onTap: () {
-                  setState(() {
-                    mapdata.removeAt(index);
-                  });
-                },
-                child: Icon(Icons.close, color: Colors.white, size: 20.0))
-          ],
+              GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      mapdata.removeAt(index);
+                    });
+                  },
+                  child: Icon(Icons.close, color: Colors.white, size: 20.0))
+            ],
+          ),
         ),
       ),
     );
@@ -506,13 +507,22 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                                 selectedProduct =
                                                     "Select Product";
                                                 items = 1;
-                                                products = [];
+                                                products = ["Select Product"];
                                                 selectedLocation = value!;
 
                                                 brandmap[selectedLocation]!
                                                     .forEach((key, value) {
-                                                  products.add(key);
+                                                  for (var k in value) {
+                                                    if (k != "Select Brand") {
+                                                      products
+                                                          .add("${key} (${k})");
+                                                    }
+                                                  }
                                                 });
+
+                                                // tempquantity1 = totaldata[0]
+                                                //     .product!
+                                                //     .quantity;
                                               });
                                             },
                                           ),
@@ -606,7 +616,7 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                                                         92,
                                                                         148,
                                                                         231),
-                                                                    "Product ${i + 1}",
+                                                                    "${mapdata[i]['product']}",
                                                                     i));
                                                           },
                                                         ),
@@ -663,48 +673,59 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                                                                 value) async {
                                                                           setState(
                                                                               () {
+                                                                            var product =
+                                                                                value.toString().split("(")[0].trim();
                                                                             tempproduct =
                                                                                 value!;
-                                                                            tempcompletebrandlist =
-                                                                                brandmap[selectedLocation]![value]!;
+                                                                            // tempcompletebrandlist =
+                                                                            //     brandmap[selectedLocation]![value]!;
+                                                                            print("total data: ${totaldata}");
+                                                                            for (Location i
+                                                                                in totaldata) {
+                                                                              if (i.product!.pname == product && i.product!.category == value.toString().split("(")[1].split(")")[0].trim()) {
+                                                                                print(i.product!.quantity);
+                                                                                tempquantity1 = i.product!.quantity;
+                                                                                print(i.product!.category);
+                                                                              }
+                                                                            }
                                                                           });
                                                                         },
                                                                       ),
                                                                     )
                                                                   ],
                                                                 ),
-                                                                Container(
-                                                                  height: 100.0,
-                                                                  child: ListView
-                                                                      .builder(
-                                                                    itemCount:
-                                                                        tempcompletebrandlist
-                                                                            .length,
-                                                                    scrollDirection:
-                                                                        Axis.horizontal,
-                                                                    itemBuilder:
-                                                                        (BuildContext
-                                                                                context,
-                                                                            int i) {
-                                                                      return tempcompletebrandlist[i] ==
-                                                                              "Select Brand"
-                                                                          ? Container()
-                                                                          : GestureDetector(
-                                                                              onTap: () {
-                                                                                setState(() {
-                                                                                  tempbrand = tempcompletebrandlist[i];
-                                                                                });
-                                                                              },
-                                                                              child: buildOvalContainer(tempbrand == tempcompletebrandlist[i] ? Color.fromARGB(255, 115, 132, 231) : Color.fromARGB(255, 115, 218, 231), tempcompletebrandlist[i]));
-                                                                    },
-                                                                  ),
-                                                                ),
+                                                                // Container(
+                                                                //   height: 100.0,
+                                                                //   child: ListView
+                                                                //       .builder(
+                                                                //     itemCount:
+                                                                //         tempcompletebrandlist
+                                                                //             .length,
+                                                                //     scrollDirection:
+                                                                //         Axis.horizontal,
+                                                                //     itemBuilder:
+                                                                //         (BuildContext
+                                                                //                 context,
+                                                                //             int i) {
+                                                                //       return tempcompletebrandlist[i] ==
+                                                                //               "Select Brand"
+                                                                //           ? Container()
+                                                                //           : GestureDetector(
+                                                                //               onTap: () {
+                                                                //                 setState(() {
+                                                                //                   tempbrand = tempcompletebrandlist[i];
+                                                                //                 });
+                                                                //               },
+                                                                //               child: buildOvalContainer(tempbrand == tempcompletebrandlist[i] ? Color.fromARGB(255, 115, 132, 231) : Color.fromARGB(255, 115, 218, 231), tempcompletebrandlist[i]));
+                                                                //     },
+                                                                //   ),
+                                                                // ),
                                                                 SizedBox(
                                                                     height:
                                                                         16.0),
                                                                 TextFormField(
-                                                                  initialValue:
-                                                                      tempquantity,
+                                                                  controller:
+                                                                      _quantityController,
                                                                   obscureText:
                                                                       false,
                                                                   decoration:
@@ -775,12 +796,21 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                                                   onChanged:
                                                                       (val) {
                                                                     setState(
-                                                                        () {
-                                                                      tempquantity =
-                                                                          val;
-                                                                    });
+                                                                        () {});
                                                                   },
                                                                 ),
+                                                                tempquantity1 ==
+                                                                        null
+                                                                    ? Container()
+                                                                    : Text(
+                                                                        "Total Quantity available: ${tempquantity1}",
+                                                                        style: TextStyle(
+                                                                            color: Color.fromARGB(
+                                                                                255,
+                                                                                6,
+                                                                                152,
+                                                                                101)),
+                                                                      )
                                                               ],
                                                             ),
                                                           ),
@@ -801,47 +831,82 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                             MainAxisAlignment.spaceAround,
                                         children: [
                                           GestureDetector(
-                                            onTap: () {
-                                              setState(() {
-                                                if (tempbrand != "" &&
-                                                    tempquantity != "" &&
-                                                    tempproduct != "" &&
-                                                    tempbrand !=
-                                                        "Select Brand" &&
-                                                    tempproduct !=
-                                                        "Select Product" &&
-                                                    tempquantity !=
-                                                        "Select Quantity" &&
-                                                    tempquantity != null &&
-                                                    tempbrand != null &&
-                                                    tempproduct != null) {
-                                                  mapdata.add({
-                                                    "product": tempproduct,
-                                                    "brand": tempbrand,
-                                                    "quantity": tempquantity
-                                                  });
-                                                } else {
-                                                  Get.showSnackbar(GetBar(
-                                                    message:
-                                                        "Please fill all the fields",
-                                                    duration:
-                                                        Duration(seconds: 2),
-                                                    snackPosition:
-                                                        SnackPosition.BOTTOM,
-                                                  ));
-                                                }
-                                              });
-                                            },
+                                            onTap: () {},
                                             child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(18.0),
-                                              child: Text(
-                                                "Add Product",
-                                                style: TextStyle(
-                                                    color: Colors.deepPurple,
-                                                    fontSize: 18.0),
-                                              ),
-                                            ),
+                                                padding: EdgeInsets.all(18.0),
+                                                child: TextButton(
+                                                  style: ButtonStyle(
+                                                    backgroundColor:
+                                                        MaterialStateProperty
+                                                            .all<Color>(Colors
+                                                                .deepPurple),
+                                                  ),
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      tempbrand = tempproduct
+                                                          .toString()
+                                                          .split("(")[1]
+                                                          .split(')')[0]
+                                                          .trim();
+                                                      if (_quantityController
+                                                                  .text !=
+                                                              "0" &&
+                                                          tempproduct != "" &&
+                                                          tempproduct !=
+                                                              "Select Product" &&
+                                                          _quantityController
+                                                                  .text !=
+                                                              "Select Quantity" &&
+                                                          _quantityController
+                                                                  .text !=
+                                                              "" &&
+                                                          tempproduct != null) {
+                                                        mapdata.add({
+                                                          "product":
+                                                              tempproduct,
+                                                          "brand": tempbrand,
+                                                          "quantity":
+                                                              _quantityController
+                                                                  .text
+                                                        });
+                                                      } else {
+                                                        Get.showSnackbar(GetBar(
+                                                          message:
+                                                              "Please fill all the fields",
+                                                          duration: Duration(
+                                                              seconds: 2),
+                                                          snackPosition:
+                                                              SnackPosition
+                                                                  .BOTTOM,
+                                                        ));
+                                                      }
+                                                      if (_quantityController
+                                                              .text !=
+                                                          "0") {
+                                                        Get.showSnackbar(GetBar(
+                                                          message:
+                                                              "Product Added Successfully",
+                                                          duration: Duration(
+                                                              seconds: 2),
+                                                          snackPosition:
+                                                              SnackPosition
+                                                                  .BOTTOM,
+                                                        ));
+                                                      }
+                                                      _quantityController.text =
+                                                          '0';
+                                                      tempquantity1 = null;
+                                                    });
+                                                  },
+                                                  child: Text(
+                                                    "Add Product",
+                                                    style: TextStyle(
+                                                        color: const Color
+                                                                .fromARGB(
+                                                            255, 255, 255, 255),
+                                                        fontSize: 18.0),
+                                                  ),
+                                                )),
                                           ),
                                         ],
                                       )
@@ -906,10 +971,17 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                   print('okwofjweojfwo3');
                                   for (var k in mapdata) {
                                     print(i.product!.pname);
-                                    print(k['product']);
+                                    print(k['product']
+                                        .toString()
+                                        .split("(")[0]
+                                        .trim());
                                     print(i.product!.category);
                                     print(k['brand']);
-                                    if (i.product!.pname == k['product'] &&
+                                    if (i.product!.pname ==
+                                            k['product']
+                                                .toString()
+                                                .split("(")[0]
+                                                .trim() &&
                                         i.product!.category == k['brand']) {
                                       print('okwofjweojfwo4');
                                       if (int.parse(i.product!.quantity!) >=
@@ -926,7 +998,11 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                                 .toString(),
                                             initialquantity:
                                                 i.product!.quantity!,
-                                            pname: k['product'],
+                                            pname: k['product']
+                                                .toString()
+                                                .split("(")[0]
+                                                .trim(),
+                                                brand: k['brand'],
                                             type: "order"));
                                         print('okwofjweojfwo6');
 
@@ -960,6 +1036,9 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                   "locations":
                                       data.map((e) => e.toJson()).toList()
                                 }).whenComplete(() {
+                                  setState(() {
+                                    mapdata.clear();
+                                  });
                                   print('okwofjweojfwo9');
                                   Get.showSnackbar(GetBar(
                                     message: "Order created successfully!",

@@ -592,17 +592,26 @@ class _ActivitylistWidgetState extends State<ActivitylistWidget> {
                                                                         MainAxisAlignment
                                                                             .spaceBetween,
                                                                     children: [
-                                                                      Text(
-                                                                          '${datalistwithfilteredvalue[index].pname} ',
-                                                                          style:
-                                                                              TextStyle(
-                                                                            color:
-                                                                                Color(0xFF4B39EF),
-                                                                            fontSize:
-                                                                                11,
-                                                                            fontWeight:
-                                                                                FontWeight.normal,
-                                                                          )),
+                                                                      Column(
+                                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                                        children: [
+                                                                          Text(
+                                                                              '${datalistwithfilteredvalue[index].pname}${"\n"}(${datalistwithfilteredvalue[index].brand})',
+                                                                              style: TextStyle(
+                                                                                color: Color(0xFF4B39EF),
+                                                                                fontSize: 11,
+                                                                                fontWeight: FontWeight.normal,
+                                                                              )),
+                                                                          datalistwithfilteredvalue[index].status == "in"
+                                                                              ? Text('Description: ${datalistwithfilteredvalue[index].description}',
+                                                                                  style: TextStyle(
+                                                                                    color: Color(0xFF4B39EF),
+                                                                                    fontSize: 11,
+                                                                                    fontWeight: FontWeight.normal,
+                                                                                  ))
+                                                                              : Container()
+                                                                        ],
+                                                                      ),
                                                                       datalistwithfilteredvalue[index].type ==
                                                                               "add"
                                                                           ? Text(
