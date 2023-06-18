@@ -28,7 +28,7 @@ import '../data.dart';
 
 Future<Uint8List> generateReport(
     PdfPageFormat pageFormat, CustomData data) async {
-  const tableHeaders = ['SERIAL NO.', 'PRODUCT', 'BRAND', 'QTY'];
+  const tableHeaders = ['S NO', '      PRODUCT      ', '      BRAND      ', '       QTY        '];
   var dataTable = productlist;
 
   const baseColor = PdfColors.grey600;

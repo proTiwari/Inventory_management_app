@@ -171,6 +171,7 @@ class _ActivitylistWidgetState extends State<ActivitylistWidget> {
                                             await showOmniDateTimeRangePicker(
                                           context: context,
                                           startInitialDate: DateTime.now(),
+                                          type: OmniDateTimePickerType.date,
                                           startFirstDate: DateTime(1600)
                                               .subtract(
                                                   const Duration(days: 3652)),
@@ -393,6 +394,7 @@ class _ActivitylistWidgetState extends State<ActivitylistWidget> {
                                                 dateTimeList =
                                                     await showOmniDateTimeRangePicker(
                                                   context: context,
+                                                  type: OmniDateTimePickerType.date,
                                                   startInitialDate:
                                                       DateTime.now(),
                                                   startFirstDate: DateTime(1600)
@@ -593,7 +595,8 @@ class _ActivitylistWidgetState extends State<ActivitylistWidget> {
                                                                             .spaceBetween,
                                                                     children: [
                                                                       Column(
-                                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                                        crossAxisAlignment:
+                                                                            CrossAxisAlignment.start,
                                                                         children: [
                                                                           Text(
                                                                               '${datalistwithfilteredvalue[index].pname}${"\n"}(${datalistwithfilteredvalue[index].brand})',
@@ -602,13 +605,33 @@ class _ActivitylistWidgetState extends State<ActivitylistWidget> {
                                                                                 fontSize: 11,
                                                                                 fontWeight: FontWeight.normal,
                                                                               )),
-                                                                          datalistwithfilteredvalue[index].status == "in"
+                                                                          datalistwithfilteredvalue[index].status == "in" && datalistwithfilteredvalue[index].type == "edit"
                                                                               ? Text('Description: ${datalistwithfilteredvalue[index].description}',
                                                                                   style: TextStyle(
                                                                                     color: Color(0xFF4B39EF),
                                                                                     fontSize: 11,
                                                                                     fontWeight: FontWeight.normal,
                                                                                   ))
+                                                                              : Container(),
+                                                                          datalistwithfilteredvalue[index].status == "out"
+                                                                              ? Column(
+                                                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                  children: [
+                                                                                    Text('Location: ${location}',
+                                                                                        style: TextStyle(
+                                                                                          color: Color(0xFF4B39EF),
+                                                                                          fontSize: 11,
+                                                                                          fontWeight: FontWeight.normal,
+                                                                                        )),
+                                                                                    Text('Description: ${datalistwithfilteredvalue[index].description}',
+                                                                                        style: TextStyle(
+                                                                                          color: Color(0xFF4B39EF),
+                                                                                          fontSize: 11,
+                                                                                          fontWeight: FontWeight.normal,
+                                                                                        )),
+                                                                                  ],
+                                                                                )
                                                                               : Container()
                                                                         ],
                                                                       ),
@@ -634,7 +657,7 @@ class _ActivitylistWidgetState extends State<ActivitylistWidget> {
                                                                                   crossAxisAlignment: CrossAxisAlignment.end,
                                                                                   mainAxisAlignment: MainAxisAlignment.end,
                                                                                   children: [
-                                                                                    Text('Sold Quantity ${int.parse(datalistwithfilteredvalue[index].initialquantity.toString()) - int.parse(datalistwithfilteredvalue[index].finalquantity.toString())}',
+                                                                                    Text('Sold Quantity ${int.parse(datalistwithfilteredvalue[index].initialquantity.toString()) - int.parse(datalistwithfilteredvalue[index].finalquantity.toString())} to ${datalistwithfilteredvalue[index].customername}',
                                                                                         style: TextStyle(
                                                                                           fontFamily: 'Plus Jakarta Sans',
                                                                                           color: Color.fromARGB(255, 204, 90, 33),

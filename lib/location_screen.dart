@@ -23,7 +23,7 @@ class LocationlistWidget extends StatefulWidget {
 }
 
 class _LocationlistWidgetState extends State<LocationlistWidget>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final _unfocusNode = FocusNode();
   List<String> uniqueList = [];
@@ -39,15 +39,28 @@ class _LocationlistWidgetState extends State<LocationlistWidget>
   @override
   void initState() {
     super.initState();
-    tabController = TabController(
-      length: 3,
-      vsync: this,
-      initialIndex: 0,
-    )..addListener(() {
-        setState(() {
-          tabController;
+    if (Get.arguments == 'c') {
+      tabController = TabController(
+        length: 3,
+        vsync: this,
+        initialIndex: 2,
+      )..addListener(() {
+          setState(() {
+            tabController;
+          });
         });
-      });
+    } else {
+      tabController = TabController(
+        length: 3,
+        vsync: this,
+        initialIndex: 0,
+      )..addListener(() {
+          setState(() {
+            tabController;
+          });
+        });
+    }
+
     editTextController.text = "";
     // testfun();
     locationsearchcontroller.addListener(() {
@@ -1598,112 +1611,172 @@ class _LocationlistWidgetState extends State<LocationlistWidget>
                                                                     (BuildContext
                                                                             context,
                                                                         int index) {
-                                                                  return Padding(
-                                                                    padding: EdgeInsetsDirectional
-                                                                        .fromSTEB(
-                                                                            16,
-                                                                            8,
-                                                                            16,
-                                                                            0),
+                                                                  return GestureDetector(
+                                                                    onTap: () {
+                                                                      Get.toNamed(
+                                                                          AppRoutes
+                                                                              .consumeractivity,
+                                                                          arguments:
+                                                                              customermatchQuery![index]);
+                                                                    },
                                                                     child:
-                                                                        Container(
-                                                                      width: double
-                                                                          .infinity,
-                                                                      decoration:
-                                                                          BoxDecoration(
-                                                                        color: Colors
-                                                                            .white,
-                                                                        boxShadow: [
-                                                                          BoxShadow(
-                                                                            blurRadius:
-                                                                                3,
-                                                                            color:
-                                                                                Color(0x20000000),
-                                                                            offset:
-                                                                                Offset(0, 1),
-                                                                          )
-                                                                        ],
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(12),
-                                                                      ),
+                                                                        Padding(
+                                                                      padding: EdgeInsetsDirectional
+                                                                          .fromSTEB(
+                                                                              16,
+                                                                              8,
+                                                                              16,
+                                                                              0),
                                                                       child:
-                                                                          Padding(
-                                                                        padding: EdgeInsetsDirectional.fromSTEB(
-                                                                            8,
-                                                                            8,
-                                                                            12,
-                                                                            8),
+                                                                          Container(
+                                                                        width: double
+                                                                            .infinity,
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color:
+                                                                              Colors.white,
+                                                                          boxShadow: [
+                                                                            BoxShadow(
+                                                                              blurRadius: 3,
+                                                                              color: Color(0x20000000),
+                                                                              offset: Offset(0, 1),
+                                                                            )
+                                                                          ],
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(12),
+                                                                        ),
                                                                         child:
-                                                                            Row(
-                                                                          mainAxisSize:
-                                                                              MainAxisSize.max,
-                                                                          crossAxisAlignment:
-                                                                              CrossAxisAlignment.center,
-                                                                          children: [
-                                                                            Expanded(
-                                                                              child: Column(
+                                                                            Padding(
+                                                                          padding: EdgeInsetsDirectional.fromSTEB(
+                                                                              8,
+                                                                              8,
+                                                                              12,
+                                                                              8),
+                                                                          child:
+                                                                              Row(
+                                                                            mainAxisSize:
+                                                                                MainAxisSize.max,
+                                                                            crossAxisAlignment:
+                                                                                CrossAxisAlignment.center,
+                                                                            children: [
+                                                                              Expanded(
+                                                                                child: Column(
+                                                                                  mainAxisSize: MainAxisSize.max,
+                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                  children: [
+                                                                                    Padding(
+                                                                                      padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
+                                                                                      child: Text('${customermatchQuery![index]}',
+                                                                                          style: TextStyle(
+                                                                                            fontFamily: 'Plus Jakarta Sans',
+                                                                                            color: Color(0xFF14181B),
+                                                                                            fontSize: 16,
+                                                                                            fontWeight: FontWeight.normal,
+                                                                                          )),
+                                                                                    ),
+                                                                                  ],
+                                                                                ),
+                                                                              ),
+                                                                              Row(
                                                                                 mainAxisSize: MainAxisSize.max,
-                                                                                crossAxisAlignment: CrossAxisAlignment.start,
                                                                                 children: [
                                                                                   Padding(
-                                                                                    padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
-                                                                                    child: Text('${customermatchQuery![index]}',
-                                                                                        style: TextStyle(
-                                                                                          fontFamily: 'Plus Jakarta Sans',
-                                                                                          color: Color(0xFF14181B),
-                                                                                          fontSize: 16,
-                                                                                          fontWeight: FontWeight.normal,
-                                                                                        )),
+                                                                                    padding: EdgeInsetsDirectional.fromSTEB(0, 0, 15, 0),
+                                                                                    child: GestureDetector(
+                                                                                      onTap: () {
+                                                                                        editTextController.text = customermatchQuery![index];
+                                                                                        showDialog(
+                                                                                          context: context,
+                                                                                          builder: (ctx) => AlertDialog(
+                                                                                            title: Text('Edit'),
+                                                                                            content: Column(
+                                                                                              mainAxisSize: MainAxisSize.min,
+                                                                                              children: <Widget>[
+                                                                                                TextFormField(
+                                                                                                  controller: editTextController,
+                                                                                                  decoration: InputDecoration(
+                                                                                                    labelText: 'Customer Name',
+                                                                                                  ),
+                                                                                                ),
+                                                                                              ],
+                                                                                            ),
+                                                                                            actions: <Widget>[
+                                                                                              ElevatedButton(
+                                                                                                child: Text('Cancel'),
+                                                                                                onPressed: () {
+                                                                                                  Navigator.of(context).pop();
+                                                                                                },
+                                                                                              ),
+                                                                                              ElevatedButton(
+                                                                                                child: Text('Save'),
+                                                                                                onPressed: () {
+                                                                                                  FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).get().then((value) {
+                                                                                                    List<dynamic> customer = value.data()!["customer"];
+                                                                                                    print("owjfowejo: ${customer}");
+
+                                                                                                    for (var i = 0; i < customer.length; i++) {
+                                                                                                      if (customer[i] == customermatchQuery![index]) {
+                                                                                                        //change the key name locationName of the map i to the new value
+                                                                                                        customer[i] = "${editTextController.text}";
+                                                                                                      }
+                                                                                                    }
+                                                                                                    print(data.customer![index]);
+                                                                                                    print("sijief ${customer}");
+                                                                                                    print(editTextController.text);
+                                                                                                    FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).update({"customer": customer});
+                                                                                                  });
+                                                                                                  Navigator.of(context).pop();
+                                                                                                },
+                                                                                              ),
+                                                                                            ],
+                                                                                          ),
+                                                                                        );
+                                                                                      },
+                                                                                      child: Icon(
+                                                                                        Icons.edit_outlined,
+                                                                                        color: Color(0xFF4B39EF),
+                                                                                        size: 24,
+                                                                                      ),
+                                                                                    ),
                                                                                   ),
-                                                                                ],
-                                                                              ),
-                                                                            ),
-                                                                            Row(
-                                                                              mainAxisSize: MainAxisSize.max,
-                                                                              children: [
-                                                                                Padding(
-                                                                                  padding: EdgeInsetsDirectional.fromSTEB(0, 0, 15, 0),
-                                                                                  child: GestureDetector(
+                                                                                  GestureDetector(
                                                                                     onTap: () {
                                                                                       editTextController.text = customermatchQuery![index];
                                                                                       showDialog(
                                                                                         context: context,
                                                                                         builder: (ctx) => AlertDialog(
-                                                                                          title: Text('Edit'),
+                                                                                          title: Text('Delete'),
                                                                                           content: Column(
                                                                                             mainAxisSize: MainAxisSize.min,
                                                                                             children: <Widget>[
                                                                                               TextFormField(
+                                                                                                enabled: false,
                                                                                                 controller: editTextController,
                                                                                                 decoration: InputDecoration(
-                                                                                                  labelText: 'Customer Name',
+                                                                                                  labelText: 'Are you sure you want to delete this Customer?',
                                                                                                 ),
                                                                                               ),
                                                                                             ],
                                                                                           ),
                                                                                           actions: <Widget>[
                                                                                             ElevatedButton(
-                                                                                              child: Text('Cancel'),
+                                                                                              child: Text('No'),
                                                                                               onPressed: () {
                                                                                                 Navigator.of(context).pop();
                                                                                               },
                                                                                             ),
                                                                                             ElevatedButton(
-                                                                                              child: Text('Save'),
+                                                                                              child: Text('Yes'),
                                                                                               onPressed: () {
                                                                                                 FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).get().then((value) {
                                                                                                   List<dynamic> customer = value.data()!["customer"];
-                                                                                                  print("owjfowejo: ${customer}");
 
                                                                                                   for (var i = 0; i < customer.length; i++) {
                                                                                                     if (customer[i] == customermatchQuery![index]) {
                                                                                                       //change the key name locationName of the map i to the new value
-                                                                                                      customer[i] = "${editTextController.text}";
+                                                                                                      customer.remove(customer[i]);
                                                                                                     }
                                                                                                   }
-                                                                                                  print(data.customer![index]);
-                                                                                                  print("sijief ${customer}");
-                                                                                                  print(editTextController.text);
                                                                                                   FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).update({
                                                                                                     "customer": customer
                                                                                                   });
@@ -1716,70 +1789,15 @@ class _LocationlistWidgetState extends State<LocationlistWidget>
                                                                                       );
                                                                                     },
                                                                                     child: Icon(
-                                                                                      Icons.edit_outlined,
+                                                                                      Icons.delete_sharp,
                                                                                       color: Color(0xFF4B39EF),
                                                                                       size: 24,
                                                                                     ),
                                                                                   ),
-                                                                                ),
-                                                                                GestureDetector(
-                                                                                  onTap: () {
-                                                                                    editTextController.text = customermatchQuery![index];
-                                                                                    showDialog(
-                                                                                      context: context,
-                                                                                      builder: (ctx) => AlertDialog(
-                                                                                        title: Text('Delete'),
-                                                                                        content: Column(
-                                                                                          mainAxisSize: MainAxisSize.min,
-                                                                                          children: <Widget>[
-                                                                                            TextFormField(
-                                                                                              enabled: false,
-                                                                                              controller: editTextController,
-                                                                                              decoration: InputDecoration(
-                                                                                                labelText: 'Are you sure you want to delete this Customer?',
-                                                                                              ),
-                                                                                            ),
-                                                                                          ],
-                                                                                        ),
-                                                                                        actions: <Widget>[
-                                                                                          ElevatedButton(
-                                                                                            child: Text('No'),
-                                                                                            onPressed: () {
-                                                                                              Navigator.of(context).pop();
-                                                                                            },
-                                                                                          ),
-                                                                                          ElevatedButton(
-                                                                                            child: Text('Yes'),
-                                                                                            onPressed: () {
-                                                                                              FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).get().then((value) {
-                                                                                                List<dynamic> customer = value.data()!["customer"];
-
-                                                                                                for (var i = 0; i < customer.length; i++) {
-                                                                                                  if (customer[i] == customermatchQuery![index]) {
-                                                                                                    //change the key name locationName of the map i to the new value
-                                                                                                    customer.remove(customer[i]);
-                                                                                                  }
-                                                                                                }
-                                                                                                FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).update({
-                                                                                                  "customer": customer
-                                                                                                });
-                                                                                              });
-                                                                                              Navigator.of(context).pop();
-                                                                                            },
-                                                                                          ),
-                                                                                        ],
-                                                                                      ),
-                                                                                    );
-                                                                                  },
-                                                                                  child: Icon(
-                                                                                    Icons.delete_sharp,
-                                                                                    color: Color(0xFF4B39EF),
-                                                                                    size: 24,
-                                                                                  ),
-                                                                                ),
-                                                                              ],
-                                                                            ),
-                                                                          ],
+                                                                                ],
+                                                                              ),
+                                                                            ],
+                                                                          ),
                                                                         ),
                                                                       ),
                                                                     ),
@@ -2017,7 +2035,6 @@ class locationselectordialog extends StatefulWidget {
 }
 
 class _locationselectordialogState extends State<locationselectordialog> {
-  var dateTimeList;
   @override
   void dispose() {
     super.dispose();
@@ -2036,6 +2053,57 @@ class _locationselectordialogState extends State<locationselectordialog> {
       }
     }
     locationS = widgetuniqueList[0];
+    removeallemptyhistory();
+  }
+
+  removeallemptyhistory() async {
+    print('ifjweijfowjfiow');
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then((value) async {
+      List<Location> locations = (value.data()!['locations'] as List<dynamic>)
+          .map((e) => Location.fromJson(e))
+          .toList();
+      print("lsldddddd: ${locations}");
+      List<Location> toremove1 = [];
+      List<Location> topreremove1 = [];
+      for (Location j in locations) {
+        if (j.history!.isEmpty) {
+          topreremove1.add(j);
+        }
+      }
+
+      for (Location k in topreremove1) {
+        int count = 0;
+        for (Location m in locations) {
+          if (k.locationName == m.locationName) {
+            count++;
+            if (count > 1) {
+              try {
+                print("kjjjjjjjjj  ${k.locationName}");
+                toremove1.add(k);
+              } catch (e) {
+                print("wjefoweo$e");
+              }
+            }
+          }
+        }
+      }
+      try {
+        // ignore: iterable_contains_unrelated_type
+        locations.removeWhere((e) => toremove1.contains(e));
+        await FirebaseFirestore.instance
+            .collection("users")
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .update({"locations": locations.map((e) => e.toJson()).toList()})
+            .whenComplete(() => print("done"))
+            .onError((error, stackTrace) => print("error: $error"));
+      } catch (e) {
+        print("okwefoiwj $e");
+      }
+    });
   }
 
   @override
@@ -2079,6 +2147,7 @@ class _locationselectordialogState extends State<locationselectordialog> {
                       const Duration(days: 3652),
                     ),
                     is24HourMode: true,
+                    type: OmniDateTimePickerType.date,
                     isShowSeconds: false,
                     minutesInterval: 1,
                     secondsInterval: 1,
@@ -2114,8 +2183,8 @@ class _locationselectordialogState extends State<locationselectordialog> {
                 child: dateTimeList == null
                     ? Center(child: Text("Select Date"))
                     : Center(
-                        child: Text(
-                            "${dateTimeList.toString().split(":00.")[0]}"))),
+                        child:
+                            Text("${dateTimeList.toString().split(" ")[0]}"))),
           )
         ],
       ),
@@ -2142,55 +2211,82 @@ class _locationselectordialogState extends State<locationselectordialog> {
               locationlist = [];
               productlist = [];
               print("Select All hjhjjhj");
+              print("fsese1");
               try {
                 await FirebaseFirestore.instance
                     .collection('users')
                     .doc(FirebaseAuth.instance.currentUser!.uid)
                     .get()
                     .then((value) {
+                  print("fsese2");
                   List<Location> locations = value
                       .data()!['locations']
                       .map<Location>((e) => Location.fromJson(e))
                       .toList();
+                  print("fsese3");
+                  print(locations.map((e) => print(e.product!.pname)));
+                  //code for sorting locations
+                  try {
+                    locations.sort((a, b) => a.product!.pname!
+                        .toLowerCase()
+                        .compareTo(b.product!.pname!.toLowerCase()));
+                  } catch (e) {
+                    print(e);
+                  }
+
+                  print("fsese4");
                   for (var i in locations) {
+                    print("fsese5");
                     if (locationList.contains(i.locationName) == false) {
                       locationList.add(i.locationName);
+                      print("fsese6");
                     }
                   }
+                  print("fsese7");
                   int count = 0;
                   List product = [];
                   String recentlocation = "";
                   for (var j in locationList) {
+                    print("fsese1");
                     if (j != null) {
+                      print("fsese1");
                       for (var k in locations) {
+                        print("fsese1");
                         // logic for getting quantity at specific date and time
                         var quantity = "0";
                         print("ijwofjwoejfojwe");
                         try {
                           print('isjfowje$dateTimeList');
+                          print("fsese8");
 
                           var quantitylist = [];
                           var datelist = [];
                           for (History n in k.history!) {
+                            print("fsese9");
                             try {
                               print("weiw1");
                               if (n.datetime == dateTimeList.toString()) {
+                                print("fsese11");
                                 print("weiw2");
                                 quantity = n.finalquantity!;
                                 print("weiw3");
                               } else {
+                                print("fsese12");
                                 DateTime dt1 = DateTime.parse(n.datetime!);
                                 print("weiw4");
                                 DateTime dt2 =
                                     DateTime.parse(dateTimeList.toString());
                                 print("weiw5");
+                                print("fsese13");
 
                                 if (dt1.compareTo(dt2) < 0) {
+                                  print("fsese14");
                                   print("weiw6");
                                   quantitylist.add(n.finalquantity);
                                   print("weiw7");
                                   datelist.add(dt1);
                                   print("weiw8");
+                                  print("fsese15");
                                 }
                               }
                             } catch (e) {
@@ -2270,7 +2366,7 @@ class _locationselectordialogState extends State<locationselectordialog> {
                   Get.toNamed(AppRoutes.pdfscreen);
                 });
               } catch (e) {
-                print(e);
+                print("error in location screen: ${e}");
               }
             } else {
               List locationList = [];
@@ -2283,11 +2379,19 @@ class _locationselectordialogState extends State<locationselectordialog> {
                     .data()!['locations']
                     .map<Location>((e) => Location.fromJson(e))
                     .toList();
+                try {
+                  locations.sort((a, b) => a.product!.pname!
+                      .toLowerCase()
+                      .compareTo(b.product!.pname!.toLowerCase()));
+                } catch (e) {
+                  print(e);
+                }
                 for (var i in locations) {
                   if (locationList.contains(i.locationName) == false) {
                     locationList.add(i.locationName);
                   }
                 }
+
                 int count = 0;
                 List product = [];
                 String recentlocation = "";

@@ -4,8 +4,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_connect/http/src/utils/utils.dart';
+import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:xplode_management/router.dart';
 
+import 'global_variables.dart';
 import 'model/owner_model.dart';
 
 class ProductlistWidget extends StatefulWidget {
@@ -21,6 +23,7 @@ class _ProductlistWidgetState extends State<ProductlistWidget> {
   var location;
   List<Product> uniqueList = [];
   TextEditingController editTextController = TextEditingController();
+  TextEditingController editTextController1 = TextEditingController();
   TextEditingController locationsearchcontroller = TextEditingController();
   List<Product> matchQuery = [];
 
@@ -270,13 +273,21 @@ class _ProductlistWidgetState extends State<ProductlistWidget> {
                                                                                 padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
                                                                                 child: Row(
                                                                                   children: [
-                                                                                    Text('${datalist[index].pname}${'\n'}(${datalist[index].category})',
-                                                                                        style: TextStyle(
-                                                                                          fontFamily: 'Plus Jakarta Sans',
-                                                                                          color: Color(0xFF14181B),
-                                                                                          fontSize: 16,
-                                                                                          fontWeight: FontWeight.normal,
-                                                                                        )),
+                                                                                    datalist[index].category == ''
+                                                                                        ? Text('${datalist[index].pname}',
+                                                                                            style: TextStyle(
+                                                                                              fontFamily: 'Plus Jakarta Sans',
+                                                                                              color: Color(0xFF14181B),
+                                                                                              fontSize: 16,
+                                                                                              fontWeight: FontWeight.normal,
+                                                                                            ))
+                                                                                        : Text('${datalist[index].pname} (${datalist[index].category})',
+                                                                                            style: TextStyle(
+                                                                                              fontFamily: 'Plus Jakarta Sans',
+                                                                                              color: Color(0xFF14181B),
+                                                                                              fontSize: 16,
+                                                                                              fontWeight: FontWeight.normal,
+                                                                                            )),
                                                                                     Padding(
                                                                                       padding: const EdgeInsets.only(left: 18.0),
                                                                                       child: Icon(
@@ -304,20 +315,29 @@ class _ProductlistWidgetState extends State<ProductlistWidget> {
                                                                               child: GestureDetector(
                                                                                 onTap: () {
                                                                                   editTextController.text = datalist[index].pname!;
+                                                                                  editTextController1.text = datalist[index].category!;
                                                                                   showDialog(
                                                                                     context: context,
                                                                                     builder: (ctx) => AlertDialog(
                                                                                       title: Text('Edit'),
-                                                                                      content: Column(
-                                                                                        mainAxisSize: MainAxisSize.min,
-                                                                                        children: <Widget>[
-                                                                                          TextFormField(
-                                                                                            controller: editTextController,
-                                                                                            decoration: InputDecoration(
-                                                                                              labelText: 'Product Name',
+                                                                                      content: SingleChildScrollView(
+                                                                                        child: Column(
+                                                                                          mainAxisSize: MainAxisSize.min,
+                                                                                          children: <Widget>[
+                                                                                            TextFormField(
+                                                                                              controller: editTextController,
+                                                                                              decoration: InputDecoration(
+                                                                                                labelText: 'Product Name',
+                                                                                              ),
                                                                                             ),
-                                                                                          ),
-                                                                                        ],
+                                                                                            TextFormField(
+                                                                                              controller: editTextController1,
+                                                                                              decoration: InputDecoration(
+                                                                                                labelText: 'Brand Name',
+                                                                                              ),
+                                                                                            ),
+                                                                                          ],
+                                                                                        ),
                                                                                       ),
                                                                                       actions: <Widget>[
                                                                                         ElevatedButton(
@@ -335,6 +355,7 @@ class _ProductlistWidgetState extends State<ProductlistWidget> {
                                                                                               for (var i in locations) {
                                                                                                 if (i["product"]['pname'] == datalist[index].pname!) {
                                                                                                   i["product"]['pname'] = "${editTextController.text}";
+                                                                                                  i["product"]['category'] = "${editTextController1.text}";
                                                                                                 }
                                                                                               }
                                                                                               FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).update({
@@ -505,13 +526,21 @@ class _ProductlistWidgetState extends State<ProductlistWidget> {
                                                                                 padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
                                                                                 child: Row(
                                                                                   children: [
-                                                                                    Text('${matchQuery[index].pname}${'\n'}(${datalist[index].category})',
-                                                                                        style: TextStyle(
-                                                                                          fontFamily: 'Plus Jakarta Sans',
-                                                                                          color: Color(0xFF14181B),
-                                                                                          fontSize: 16,
-                                                                                          fontWeight: FontWeight.normal,
-                                                                                        )),
+                                                                                    datalist[index].category == ''
+                                                                                        ? Text('${matchQuery[index].pname}',
+                                                                                            style: TextStyle(
+                                                                                              fontFamily: 'Plus Jakarta Sans',
+                                                                                              color: Color(0xFF14181B),
+                                                                                              fontSize: 16,
+                                                                                              fontWeight: FontWeight.normal,
+                                                                                            ))
+                                                                                        : Text('${matchQuery[index].pname} (${datalist[index].category})',
+                                                                                            style: TextStyle(
+                                                                                              fontFamily: 'Plus Jakarta Sans',
+                                                                                              color: Color(0xFF14181B),
+                                                                                              fontSize: 16,
+                                                                                              fontWeight: FontWeight.normal,
+                                                                                            )),
                                                                                     Padding(
                                                                                       padding: const EdgeInsets.only(left: 18.0),
                                                                                       child: Icon(
@@ -539,20 +568,29 @@ class _ProductlistWidgetState extends State<ProductlistWidget> {
                                                                               child: GestureDetector(
                                                                                 onTap: () {
                                                                                   editTextController.text = matchQuery[index].pname!;
+                                                                                  editTextController1.text = matchQuery[index].category!;
                                                                                   showDialog(
                                                                                     context: context,
                                                                                     builder: (ctx) => AlertDialog(
                                                                                       title: Text('Edit'),
-                                                                                      content: Column(
-                                                                                        mainAxisSize: MainAxisSize.min,
-                                                                                        children: <Widget>[
-                                                                                          TextFormField(
-                                                                                            controller: editTextController,
-                                                                                            decoration: InputDecoration(
-                                                                                              labelText: 'Product Name',
+                                                                                      content: SingleChildScrollView(
+                                                                                        child: Column(
+                                                                                          mainAxisSize: MainAxisSize.min,
+                                                                                          children: <Widget>[
+                                                                                            TextFormField(
+                                                                                              controller: editTextController,
+                                                                                              decoration: InputDecoration(
+                                                                                                labelText: 'Product Name',
+                                                                                              ),
                                                                                             ),
-                                                                                          ),
-                                                                                        ],
+                                                                                            TextFormField(
+                                                                                              controller: editTextController1,
+                                                                                              decoration: InputDecoration(
+                                                                                                labelText: 'Brand Name',
+                                                                                              ),
+                                                                                            ),
+                                                                                          ],
+                                                                                        ),
                                                                                       ),
                                                                                       actions: <Widget>[
                                                                                         ElevatedButton(
@@ -570,6 +608,7 @@ class _ProductlistWidgetState extends State<ProductlistWidget> {
                                                                                               for (var i in locations) {
                                                                                                 if (i["product"]['pname'] == matchQuery[index].pname!) {
                                                                                                   i["product"]['pname'] = "${editTextController.text}";
+                                                                                                  i["product"]['category'] = "${editTextController1.text}";
                                                                                                 }
                                                                                               }
                                                                                               FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).update({
@@ -945,9 +984,9 @@ class _AddProductInputDialogState extends State<AddProductInputDialog> {
         duration: Duration(seconds: 2),
       ));
     } else {
-      if (_nameController.text == '' || _categoryController.text == '') {
+      if (_nameController.text == '') {
         Get.showSnackbar(GetBar(
-          message: 'Product Name OR Brand Name Cannot Be Empty!',
+          message: 'Product Name Cannot Be Empty!',
           duration: Duration(seconds: 2),
         ));
       } else {
@@ -960,7 +999,9 @@ class _AddProductInputDialogState extends State<AddProductInputDialog> {
             {
               "locationName": widget.location,
               "product": {
-                "category": _categoryController.text,
+                "category": _categoryController.text == ''
+                    ? 'No Brand'
+                    : _categoryController.text,
                 "datetime": DateTime.now().toString(),
                 "pname": _nameController.text,
                 "quantity": "0"
@@ -992,22 +1033,24 @@ class _AddProductInputDialogState extends State<AddProductInputDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text('Add Product'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          TextField(
-            controller: _nameController,
-            decoration: InputDecoration(
-              labelText: 'Product Name',
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            TextField(
+              controller: _nameController,
+              decoration: InputDecoration(
+                labelText: 'Product Name',
+              ),
             ),
-          ),
-          TextField(
-            controller: _categoryController,
-            decoration: InputDecoration(
-              labelText: 'Brand',
+            TextField(
+              controller: _categoryController,
+              decoration: InputDecoration(
+                labelText: 'Brand(Optional)',
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       actions: <Widget>[
         ElevatedButton(
@@ -1103,8 +1146,6 @@ class _EditProductInputDialogState extends State<EditProductInputDialog> {
               print(productName);
               print(i.product!.pname);
               if (productName == i.product!.pname) {
-                print("isofwjeo6");
-
                 var quantity = i.product!.quantity;
                 var finalquantity =
                     (int.parse(quantity!) + int.parse(_quantityController.text))
@@ -1134,7 +1175,7 @@ class _EditProductInputDialogState extends State<EditProductInputDialog> {
                       type: "edit",
                       pname:
                           _nameController.text.toString().split('(')[0].trim(),
-                      datetime: DateTime.now().toString(),
+                      datetime: dateTimeList.toString(),
                       brand: _nameController.text
                           .toString()
                           .split('(')[1]
@@ -1160,7 +1201,7 @@ class _EditProductInputDialogState extends State<EditProductInputDialog> {
                             .split('(')[1]
                             .split(')')[0]
                             .trim(),
-                        datetime: DateTime.now().toString(),
+                        datetime: dateTimeList.toString(),
                         quantity: finalquantity,
                         description: _descriptionController.text,
                         lotid: _numberController.text)
@@ -1188,65 +1229,120 @@ class _EditProductInputDialogState extends State<EditProductInputDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text('Add Quantity'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Container(
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: DropdownButtonFormField<String>(
-                    value: productlist[0],
-                    hint: Text('Select Product'),
-                    items: productlist.map((String customer) {
-                      return DropdownMenuItem<String>(
-                        value: customer,
-                        child: Text(customer),
-                      );
-                    }).toList(),
-                    onChanged: (String? value) {
-                      setState(() {
-                        _nameController.text = value!;
-                      });
-                    },
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Container(
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: DropdownButtonFormField<String>(
+                      value: productlist[0],
+                      hint: Text('Select Product'),
+                      items: productlist.map((String customer) {
+                        return DropdownMenuItem<String>(
+                          value: customer,
+                          child: Text(customer),
+                        );
+                      }).toList(),
+                      onChanged: (String? value) {
+                        setState(() {
+                          _nameController.text = value!;
+                        });
+                      },
+                    ),
                   ),
-                ),
-                Expanded(
-                    child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AddProductInputDialog(widget.location);
-                            },
-                          );
-                        },
-                        child: Icon(Icons.add_circle_outline)))
-              ],
+                  Expanded(
+                      child: GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AddProductInputDialog(widget.location);
+                              },
+                            );
+                          },
+                          child: Icon(Icons.add_circle_outline)))
+                ],
+              ),
             ),
-          ),
-          TextField(
-            controller: _quantityController,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              labelText: 'Add Quantity',
+            TextField(
+              controller: _quantityController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: 'Add Quantity',
+              ),
             ),
-          ),
-          TextField(
-            controller: _numberController,
-            decoration: InputDecoration(
-              labelText: 'Lot Id',
+            TextField(
+              controller: _numberController,
+              decoration: InputDecoration(
+                labelText: 'Lot Id',
+              ),
             ),
-          ),
-          TextField(
-            controller: _descriptionController,
-            decoration: InputDecoration(
-              labelText: 'Description',
+            TextField(
+              controller: _descriptionController,
+              decoration: InputDecoration(
+                labelText: 'Description',
+              ),
             ),
-          ),
-        ],
+            SizedBox(
+              height: 30,
+              width: 300,
+              child: ElevatedButton(
+                  onPressed: () async {
+                    dateTimeList = await showOmniDateTimePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate:
+                          DateTime(1600).subtract(const Duration(days: 3652)),
+                      lastDate: DateTime.now().add(
+                        const Duration(days: 3652),
+                      ),
+                      type: OmniDateTimePickerType.date,
+                      is24HourMode: true,
+                      isShowSeconds: false,
+                      minutesInterval: 1,
+                      secondsInterval: 1,
+                      borderRadius: const BorderRadius.all(Radius.circular(16)),
+                      constraints: const BoxConstraints(
+                        maxWidth: 350,
+                        maxHeight: 650,
+                      ),
+                      transitionBuilder: (context, anim1, anim2, child) {
+                        return FadeTransition(
+                          opacity: anim1.drive(
+                            Tween(
+                              begin: 0,
+                              end: 1,
+                            ),
+                          ),
+                          child: child,
+                        );
+                      },
+                      transitionDuration: const Duration(milliseconds: 200),
+                      barrierDismissible: true,
+                    );
+                    setState(() {
+                      dateTimeList;
+                    });
+                  },
+                  style: ButtonStyle(
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                  )),
+                  child: dateTimeList == null
+                      ? Center(child: Text("Select Date"))
+                      : Center(
+                          child: Text(
+                              "${dateTimeList.toString().split(" ")[0]}"))),
+            )
+          ],
+        ),
       ),
       actions: <Widget>[
         ElevatedButton(
@@ -1257,7 +1353,21 @@ class _EditProductInputDialogState extends State<EditProductInputDialog> {
         ),
         ElevatedButton(
           child: Text('Add Quantity'),
-          onPressed: _editProduct,
+          onPressed: () {
+            if (_nameController.text == '' ||
+                _nameController.text == 'select product' ||
+                _quantityController.text == '' ||
+                _numberController.text == '' ||
+                dateTimeList == null) {
+              Get.showSnackbar(GetBar(
+                message: "Please fill all the fields",
+                duration: Duration(seconds: 2),
+              ));
+              return;
+            } else {
+              _editProduct();
+            }
+          },
         ),
       ],
     );

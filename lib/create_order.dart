@@ -4,8 +4,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:omni_datetime_picker/omni_datetime_picker.dart';
+import 'package:xplode_management/router.dart';
+import 'package:xplode_management/search.dart';
+import 'package:xplode_management/state.dart';
 import 'package:xplode_management/utils.dart';
 
+import 'global_variables.dart';
 import 'location_screen.dart';
 import 'model/locationproductbrand.dart';
 import 'model/owner_model.dart';
@@ -30,6 +35,7 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
   List<TextEditingController> _productcontrollers = [];
   List<TextEditingController> _quantitycontrollers = [];
   TextEditingController _quantityController = TextEditingController();
+  TextEditingController _desController = TextEditingController();
   var tempquantity1;
 
   @override
@@ -48,14 +54,30 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
     _brandcontrollers.add(controller2);
   }
 
+  var _errorText;
+
+  _validateInput(String value) {
+    if (value.isEmpty) {
+      return 'Please enter a quantity';
+    }
+    final numericValue = int.tryParse(value);
+    if (numericValue == null) {
+      return 'Please enter a valid quantity';
+    }
+    if (numericValue > int.parse(FFAppState().tempquantity)) {
+      return 'quantity cannot be greater than ${FFAppState().tempquantity}';
+    }
+    return null;
+  }
+
   List<Map> mapdata = [];
   var tempproduct;
   var tempbrand;
   List tempcompletebrandlist = [];
   int tabedcontainerindex = 0;
 
-  List<String> allLocations = ["Select Location"];
-  List<String> allCustomers = ["Select Customer"];
+  List<String> allLocations = [];
+  List<String> allCustomers = [];
   List allproductname = [];
   var daata = [];
   var totaldata = [];
@@ -70,6 +92,10 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
         return Location.fromJson(e);
       }).toList();
       totaldata = locations;
+      locations.map((e) {
+        return print("skdsl: ${e.toJson()}");
+      }).toList();
+      FFAppState().locations = locations;
       for (Location i in locations) {
         try {
           if (brandmap.containsKey(i.locationName)) {
@@ -92,12 +118,17 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
               print("wew6");
             }
           } else {
-            print("wew7");
+            print("wew73");
+            print(brandmap);
+            print(brandmap[i.locationName!]);
+            print(i.product!.pname!);
+            print(i.product!.category!);
             brandmap[i.locationName!] = {
               i.product!.pname!: [i.product!.category!]
             };
             print("wew8");
           }
+          FFAppState().brandmap = brandmap;
           // if (allproductname.contains(i.product!.pname) == false) {
           //   allproductname.add(i.product!.pname);
           // }
@@ -174,13 +205,36 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
     super.dispose();
   }
 
+  void Changeboolfunlocation() {
+    print("sjdfojsodfjs99999999999999");
+    setState(() {
+      boolsearchlocation = false;
+    });
+  }
+
+  void Changeboolfuncustomer() {
+    print("sjdfojsodfjs99999999999999");
+    setState(() {
+      boolsearchcustomer = false;
+    });
+  }
+
+  void Changeboolfunproduct() {
+    print("sjdfojsodfjs99999999999999");
+    setState(() {
+      boolsearchproduct = false;
+    });
+  }
+
   String selectedCustomer = 'Select Customer';
   String selectedLocation = 'Select Location';
   String selectedProduct = 'Select Product';
   String selectedBrand = 'Select Brand';
   String templocation = '';
   bool updatebutton = false;
-
+  bool boolsearchcustomer = false;
+  bool boolsearchlocation = false;
+  bool boolsearchproduct = false;
   TextEditingController _nameController = TextEditingController();
   TextEditingController _locationController = TextEditingController();
 
@@ -309,7 +363,7 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
     Navigator.of(context).pop(); // Close the dialog box
   }
 
-  Widget buildProductOvalContainer(Color color, text, index) {
+  Widget buildProductOvalContainer(Color color, text, index, quantity) {
     return Card(
       color: Colors.deepPurple,
       margin: EdgeInsets.all(8.0),
@@ -320,13 +374,29 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Center(
-                child: Text(
-                  text,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16.0,
-                  ),
+                child: Row(
+                  children: [
+                    Text(
+                      text,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                    VerticalDivider(
+                      color: Colors.white,
+                      thickness: 1.0,
+                    ),
+                    Text(
+                      "Qty: ${quantity}",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               GestureDetector(
@@ -404,181 +474,258 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                               children: [
                                 Column(
                                   children: [
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(left: 16.0),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            flex: 14,
-                                            child:
-                                                DropdownButtonFormField<String>(
-                                              value: "Select Customer",
-                                              hint: Text('Select customer'),
-                                              items: allCustomers
-                                                  .map((String customer) {
-                                                return DropdownMenuItem<String>(
-                                                  value: customer,
-                                                  child: Text(customer),
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                            flex: 12,
+                                            child: boolsearchcustomer
+                                                ? Search(allCustomers,
+                                                    Changeboolfuncustomer, "c")
+                                                : GestureDetector(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        boolsearchcustomer =
+                                                            true;
+                                                      });
+                                                    },
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        border: Border.all(
+                                                            color: const Color
+                                                                    .fromARGB(
+                                                                255,
+                                                                255,
+                                                                255,
+                                                                255)),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(4.0),
+                                                        color: Colors
+                                                            .grey.shade300,
+                                                      ),
+                                                      padding:
+                                                          EdgeInsets.all(8.0),
+                                                      child: TextField(
+                                                        enabled: false,
+                                                        decoration:
+                                                            InputDecoration(
+                                                          border:
+                                                              InputBorder.none,
+                                                          hintText:
+                                                              '${FFAppState().customer}',
+                                                          hintStyle: TextStyle(
+                                                              color: const Color
+                                                                      .fromARGB(
+                                                                  255,
+                                                                  0,
+                                                                  0,
+                                                                  0)),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  )
+
+                                            //     DropdownButtonFormField<String>(
+                                            //   value: "Select Customer",
+                                            //   hint: Text('Select customer'),
+                                            //   items: allCustomers
+                                            //       .map((String customer) {
+                                            //     return DropdownMenuItem<String>(
+                                            //       value: customer,
+                                            //       child: Text(customer),
+                                            //     );
+                                            //   }).toList(),
+                                            //   onChanged: (String? value) {
+                                            //     setState(() {
+                                            //       selectedCustomer = value!;
+                                            //     });
+                                            //   },
+                                            // ),
+                                            ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            // showDialog box
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return AlertDialog(
+                                                  title: Text('Add Customer'),
+                                                  content: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: <Widget>[
+                                                      TextField(
+                                                        controller:
+                                                            _nameController,
+                                                        decoration:
+                                                            InputDecoration(
+                                                          labelText:
+                                                              'Customer Name',
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  actions: <Widget>[
+                                                    ElevatedButton(
+                                                      child: Text('Cancel'),
+                                                      onPressed: () {
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                    ),
+                                                    ElevatedButton(
+                                                      child:
+                                                          Text('Add Customer'),
+                                                      onPressed: _addCustomer,
+                                                    ),
+                                                  ],
                                                 );
-                                              }).toList(),
-                                              onChanged: (String? value) {
-                                                setState(() {
-                                                  selectedCustomer = value!;
-                                                });
                                               },
+                                            );
+                                          },
+                                          child: Padding(
+                                            padding:
+                                                const EdgeInsets.only(top: 6.0),
+                                            child: Icon(
+                                              Icons.add_box,
+                                              color: Colors.deepPurple,
+                                              size: 50.0,
                                             ),
                                           ),
-                                          Expanded(
-                                            child: GestureDetector(
-                                              onTap: () {
-                                                // showDialog box
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return AlertDialog(
-                                                      title:
-                                                          Text('Add Customer'),
-                                                      content: Column(
-                                                        mainAxisSize:
-                                                            MainAxisSize.min,
-                                                        children: <Widget>[
-                                                          TextField(
-                                                            controller:
-                                                                _nameController,
-                                                            decoration:
-                                                                InputDecoration(
-                                                              labelText:
-                                                                  'Customer Name',
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      actions: <Widget>[
-                                                        ElevatedButton(
-                                                          child: Text('Cancel'),
-                                                          onPressed: () {
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop();
-                                                          },
-                                                        ),
-                                                        ElevatedButton(
-                                                          child: Text(
-                                                              'Add Customer'),
-                                                          onPressed:
-                                                              _addCustomer,
-                                                        ),
-                                                      ],
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                              child: Icon(
-                                                Icons.add_circle,
-                                                color: Colors.deepPurple,
-                                                size: 24.0,
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      ),
+                                        )
+                                      ],
                                     ),
                                     SizedBox(height: 16.0),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(left: 16.0),
-                                      child: Row(children: [
-                                        Expanded(
+                                    Row(children: [
+                                      Expanded(
                                           flex: 14,
-                                          child:
-                                              DropdownButtonFormField<String>(
-                                            value: "Select Location",
-                                            hint: Text('Select location'),
-                                            items: allLocations
-                                                .map((String location) {
-                                              return DropdownMenuItem<String>(
-                                                value: location,
-                                                child: Text(location),
-                                              );
-                                            }).toList(),
-                                            onChanged: (String? value) {
-                                              setState(() {
-                                                selectedProduct =
-                                                    "Select Product";
-                                                items = 1;
-                                                products = ["Select Product"];
-                                                selectedLocation = value!;
+                                          child: boolsearchlocation
+                                              ? Search(allLocations,
+                                                  Changeboolfunlocation, 'l')
+                                              : GestureDetector(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      boolsearchlocation = true;
+                                                    });
+                                                  },
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      border: Border.all(
+                                                          color: const Color
+                                                                  .fromARGB(255,
+                                                              255, 255, 255)),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              4.0),
+                                                      color:
+                                                          Colors.grey.shade300,
+                                                    ),
+                                                    padding:
+                                                        EdgeInsets.all(8.0),
+                                                    child: TextField(
+                                                      enabled: false,
+                                                      decoration:
+                                                          InputDecoration(
+                                                        border:
+                                                            InputBorder.none,
+                                                        hintText:
+                                                            '${FFAppState().location}',
+                                                        hintStyle: TextStyle(
+                                                            color: const Color
+                                                                    .fromARGB(
+                                                                255, 0, 0, 0)),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                )
+                                          //   DropdownButtonFormField<String>(
+                                          // value: "Select Location",
+                                          // hint: Text('Select location'),
+                                          // items: allLocations
+                                          //     .map((String location) {
+                                          //   return DropdownMenuItem<String>(
+                                          //     value: location,
+                                          //     child: Text(location),
+                                          //   );
+                                          // }).toList(),
+                                          // onChanged: (String? value) {
+                                          //   setState(() {
+                                          //     selectedProduct =
+                                          //         "Select Product";
+                                          //     items = 1;
+                                          //     products = ["Select Product"];
+                                          //     selectedLocation = value!;
 
-                                                brandmap[selectedLocation]!
-                                                    .forEach((key, value) {
-                                                  for (var k in value) {
-                                                    if (k != "Select Brand") {
-                                                      products
-                                                          .add("${key} (${k})");
-                                                    }
-                                                  }
-                                                });
+                                          //     brandmap[selectedLocation]!
+                                          //         .forEach((key, value) {
+                                          //       for (var k in value) {
+                                          //         if (k != "Select Brand") {
+                                          //           products
+                                          //               .add("${key} (${k})");
+                                          //         }
+                                          //       }
+                                          //     });
 
-                                                // tempquantity1 = totaldata[0]
-                                                //     .product!
-                                                //     .quantity;
-                                              });
-                                            },
+                                          // tempquantity1 = totaldata[0]
+                                          //     .product!
+                                          //     .quantity;
+                                          // });
+                                          // },
+                                          // ),
                                           ),
-                                        ),
-                                        // Expanded(
-                                        //   child: GestureDetector(
-                                        //     onTap: () {
-                                        //       // showDialog box
-                                        //       showDialog(
-                                        //         context: context,
-                                        //         builder: (context) {
-                                        //           return AlertDialog(
-                                        //             title: Text('Add Location'),
-                                        //             content: Column(
-                                        //               mainAxisSize:
-                                        //                   MainAxisSize.min,
-                                        //               children: <Widget>[
-                                        //                 TextField(
-                                        //                   controller:
-                                        //                       _locationController,
-                                        //                   decoration:
-                                        //                       InputDecoration(
-                                        //                     labelText:
-                                        //                         'Location Name',
-                                        //                   ),
-                                        //                 ),
-                                        //               ],
-                                        //             ),
-                                        //             actions: <Widget>[
-                                        //               ElevatedButton(
-                                        //                 child: Text('Cancel'),
-                                        //                 onPressed: () {
-                                        //                   Navigator.of(context)
-                                        //                       .pop();
-                                        //                 },
-                                        //               ),
-                                        //               ElevatedButton(
-                                        //                 child: Text(
-                                        //                     'Add Location'),
-                                        //                 onPressed: _addLocation,
-                                        //               ),
-                                        //             ],
-                                        //           );
-                                        //         },
-                                        //       );
-                                        //     },
-                                        //     child: Icon(
-                                        //       Icons.add_circle,
-                                        //       color: Colors.deepPurple,
-                                        //       size: 24.0,
-                                        //     ),
-                                        //   ),
-                                        // )
-                                      ]),
-                                    ),
-                                    selectedLocation == 'Select Location'
+                                      // Expanded(
+                                      //   child: GestureDetector(
+                                      //     onTap: () {
+                                      //       // showDialog box
+                                      //       showDialog(
+                                      //         context: context,
+                                      //         builder: (context) {
+                                      //           return AlertDialog(
+                                      //             title: Text('Add Location'),
+                                      //             content: Column(
+                                      //               mainAxisSize:
+                                      //                   MainAxisSize.min,
+                                      //               children: <Widget>[
+                                      //                 TextField(
+                                      //                   controller:
+                                      //                       _locationController,
+                                      //                   decoration:
+                                      //                       InputDecoration(
+                                      //                     labelText:
+                                      //                         'Location Name',
+                                      //                   ),
+                                      //                 ),
+                                      //               ],
+                                      //             ),
+                                      //             actions: <Widget>[
+                                      //               ElevatedButton(
+                                      //                 child: Text('Cancel'),
+                                      //                 onPressed: () {
+                                      //                   Navigator.of(context)
+                                      //                       .pop();
+                                      //                 },
+                                      //               ),
+                                      //               ElevatedButton(
+                                      //                 child: Text(
+                                      //                     'Add Location'),
+                                      //                 onPressed: _addLocation,
+                                      //               ),
+                                      //             ],
+                                      //           );
+                                      //         },
+                                      //       );
+                                      //     },
+                                      //     child: Icon(
+                                      //       Icons.add_circle,
+                                      //       color: Colors.deepPurple,
+                                      //       size: 24.0,
+                                      //     ),
+                                      //   ),
+                                      // )
+                                    ]),
+                                    FFAppState().location == 'Select Location'
                                         ? Container()
                                         : Container(
                                             child: Column(
@@ -617,7 +764,8 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                                                         148,
                                                                         231),
                                                                     "${mapdata[i]['product']}",
-                                                                    i));
+                                                                    i,
+                                                                    "${mapdata[i]['quantity']}"));
                                                           },
                                                         ),
                                                       ),
@@ -652,46 +800,71 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                                                 Row(
                                                                   children: [
                                                                     Expanded(
-                                                                      child: DropdownButtonFormField<
-                                                                          String>(
-                                                                        value:
-                                                                            products[0],
-                                                                        hint: Text(
-                                                                            'Select product'),
-                                                                        items: products.map((String
-                                                                            product) {
-                                                                          return DropdownMenuItem<
-                                                                              String>(
-                                                                            value:
-                                                                                product,
-                                                                            child:
-                                                                                Text(product),
-                                                                          );
-                                                                        }).toList(),
-                                                                        onChanged:
-                                                                            (String?
-                                                                                value) async {
-                                                                          setState(
-                                                                              () {
-                                                                            var product =
-                                                                                value.toString().split("(")[0].trim();
-                                                                            tempproduct =
-                                                                                value!;
-                                                                            // tempcompletebrandlist =
-                                                                            //     brandmap[selectedLocation]![value]!;
-                                                                            print("total data: ${totaldata}");
-                                                                            for (Location i
-                                                                                in totaldata) {
-                                                                              if (i.product!.pname == product && i.product!.category == value.toString().split("(")[1].split(")")[0].trim()) {
-                                                                                print(i.product!.quantity);
-                                                                                tempquantity1 = i.product!.quantity;
-                                                                                print(i.product!.category);
-                                                                              }
-                                                                            }
-                                                                          });
-                                                                        },
-                                                                      ),
-                                                                    )
+                                                                        child: boolsearchproduct
+                                                                            ? Search(FFAppState().product, Changeboolfunproduct, 'p')
+                                                                            : GestureDetector(
+                                                                                onTap: () {
+                                                                                  setState(() {
+                                                                                    boolsearchproduct = true;
+                                                                                  });
+                                                                                },
+                                                                                child: Container(
+                                                                                  decoration: BoxDecoration(
+                                                                                    border: Border.all(color: const Color.fromARGB(255, 255, 255, 255)),
+                                                                                    borderRadius: BorderRadius.circular(4.0),
+                                                                                    color: Colors.grey.shade300,
+                                                                                  ),
+                                                                                  padding: EdgeInsets.all(8.0),
+                                                                                  child: TextField(
+                                                                                    enabled: false,
+                                                                                    decoration: InputDecoration(
+                                                                                      border: InputBorder.none,
+                                                                                      hintText: '${FFAppState().productvalue}',
+                                                                                      hintStyle: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                              )
+                                                                        // DropdownButtonFormField<
+                                                                        //     String>(
+                                                                        //   value:
+                                                                        //       products[0],
+                                                                        //   hint: Text(
+                                                                        //       'Select product'),
+                                                                        //   items: products.map((String
+                                                                        //       product) {
+                                                                        //     return DropdownMenuItem<
+                                                                        //         String>(
+                                                                        //       value:
+                                                                        //           product,
+                                                                        //       child:
+                                                                        //           Text(product),
+                                                                        //     );
+                                                                        //   }).toList(),
+                                                                        //   onChanged:
+                                                                        //       (String?
+                                                                        //           value) async {
+                                                                        //     setState(
+                                                                        //         () {
+                                                                        //       var product =
+                                                                        //           value.toString().split("(")[0].trim();
+                                                                        //       tempproduct =
+                                                                        //           value!;
+                                                                        //       // tempcompletebrandlist =
+                                                                        //       //     brandmap[selectedLocation]![value]!;
+                                                                        //       print("total data: ${totaldata}");
+                                                                        //       for (Location i
+                                                                        //           in totaldata) {
+                                                                        //         if (i.product!.pname == product && i.product!.category == value.toString().split("(")[1].split(")")[0].trim()) {
+                                                                        //           print(i.product!.quantity);
+                                                                        //           tempquantity1 = i.product!.quantity;
+                                                                        //           print(i.product!.category);
+                                                                        //         }
+                                                                        //       }
+                                                                        //     });
+                                                                        //   },
+                                                                        // ),
+                                                                        )
                                                                   ],
                                                                 ),
                                                                 // Container(
@@ -730,8 +903,160 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                                                       false,
                                                                   decoration:
                                                                       InputDecoration(
+                                                                    focusedErrorBorder:
+                                                                        OutlineInputBorder(
+                                                                      borderSide:
+                                                                          BorderSide(
+                                                                        color: Color.fromARGB(
+                                                                            255,
+                                                                            192,
+                                                                            13,
+                                                                            13),
+                                                                        width:
+                                                                            2,
+                                                                      ),
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              8.0),
+                                                                    ),
+                                                                    errorBorder:
+                                                                        OutlineInputBorder(
+                                                                      borderSide:
+                                                                          BorderSide(
+                                                                        color: Color.fromARGB(
+                                                                            255,
+                                                                            192,
+                                                                            13,
+                                                                            13),
+                                                                        width:
+                                                                            2,
+                                                                      ),
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              8.0),
+                                                                    ),
+                                                                    errorText:
+                                                                        _errorText,
                                                                     labelText:
                                                                         'Quantity',
+                                                                    labelStyle:
+                                                                        GoogleFonts
+                                                                            .getFont(
+                                                                      'Roboto',
+                                                                      color: Colors
+                                                                          .black,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .normal,
+                                                                    ),
+                                                                    enabledBorder:
+                                                                        OutlineInputBorder(
+                                                                      borderSide:
+                                                                          BorderSide(
+                                                                        color: Colors
+                                                                            .deepPurple,
+                                                                        width:
+                                                                            2,
+                                                                      ),
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              8.0),
+                                                                    ),
+                                                                    focusedBorder:
+                                                                        OutlineInputBorder(
+                                                                      borderSide:
+                                                                          BorderSide(
+                                                                        color: Colors
+                                                                            .deepPurple,
+                                                                        width:
+                                                                            2,
+                                                                      ),
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              8.0),
+                                                                    ),
+                                                                    filled:
+                                                                        true,
+                                                                    fillColor:
+                                                                        Colors
+                                                                            .white,
+                                                                    contentPadding:
+                                                                        EdgeInsets.fromLTRB(
+                                                                            16,
+                                                                            24,
+                                                                            16,
+                                                                            24),
+                                                                  ),
+                                                                  style: GoogleFonts
+                                                                      .getFont(
+                                                                    'Roboto',
+                                                                    color: Colors
+                                                                        .black,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .normal,
+                                                                  ),
+                                                                  maxLines: 1,
+                                                                  keyboardType:
+                                                                      TextInputType
+                                                                          .number,
+                                                                  onChanged:
+                                                                      (val) {
+                                                                    setState(
+                                                                        () {
+                                                                      _errorText =
+                                                                          _validateInput(
+                                                                              val);
+                                                                    });
+                                                                  },
+                                                                ),
+                                                                FFAppState().tempquantity ==
+                                                                        'null'
+                                                                    ? Container()
+                                                                    : Column(
+                                                                        children: [
+                                                                          Text(
+                                                                            "Total Quantity available: ${FFAppState().tempquantity}",
+                                                                            style:
+                                                                                TextStyle(color: Color.fromARGB(255, 6, 152, 101)),
+                                                                          ),
+                                                                          _errorText == null && _quantityController.text.isNotEmpty && FFAppState().tempquantity.toString() != 'null' && int.parse(_quantityController.text.toString()) < int.parse(FFAppState().tempquantity.toString())
+                                                                              ? Text(
+                                                                                  "After Sale Qty: ${int.parse(FFAppState().tempquantity.toString()) - int.parse(_quantityController.text.toString())}",
+                                                                                  style: TextStyle(color: Color.fromARGB(255, 238, 99, 0)),
+                                                                                )
+                                                                              : Container(),
+                                                                        ],
+                                                                      ),
+
+                                                                SizedBox(
+                                                                    height:
+                                                                        16.0),
+                                                                TextFormField(
+                                                                  controller:
+                                                                      _desController,
+                                                                  obscureText:
+                                                                      false,
+                                                                  decoration:
+                                                                      InputDecoration(
+                                                                    focusedErrorBorder:
+                                                                        OutlineInputBorder(
+                                                                      borderSide:
+                                                                          BorderSide(
+                                                                        color: Color.fromARGB(
+                                                                            255,
+                                                                            192,
+                                                                            13,
+                                                                            13),
+                                                                        width:
+                                                                            2,
+                                                                      ),
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              8.0),
+                                                                    ),
+                                                                    labelText:
+                                                                        'Description(Optional)',
                                                                     labelStyle:
                                                                         GoogleFonts
                                                                             .getFont(
@@ -799,18 +1124,77 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                                                         () {});
                                                                   },
                                                                 ),
-                                                                tempquantity1 ==
-                                                                        null
-                                                                    ? Container()
-                                                                    : Text(
-                                                                        "Total Quantity available: ${tempquantity1}",
-                                                                        style: TextStyle(
-                                                                            color: Color.fromARGB(
-                                                                                255,
-                                                                                6,
-                                                                                152,
-                                                                                101)),
-                                                                      )
+                                                                SizedBox(
+                                                                  height: 16.0,
+                                                                ),
+                                                                SizedBox(
+                                                                  height: 50.0,
+                                                                  child: ElevatedButton(
+                                                                      onPressed: () async {
+                                                                        dateTimeList =
+                                                                            await showOmniDateTimePicker(
+                                                                          context:
+                                                                              context,
+                                                                          type:
+                                                                              OmniDateTimePickerType.date,
+                                                                          initialDate:
+                                                                              DateTime.now(),
+                                                                          firstDate:
+                                                                              DateTime(1600).subtract(const Duration(days: 3652)),
+                                                                          lastDate:
+                                                                              DateTime.now().add(
+                                                                            const Duration(days: 3652),
+                                                                          ),
+                                                                          is24HourMode:
+                                                                              true,
+                                                                          isShowSeconds:
+                                                                              false,
+                                                                          minutesInterval:
+                                                                              1,
+                                                                          secondsInterval:
+                                                                              1,
+                                                                          borderRadius:
+                                                                              const BorderRadius.all(Radius.circular(16)),
+                                                                          constraints:
+                                                                              const BoxConstraints(
+                                                                            maxWidth:
+                                                                                350,
+                                                                            maxHeight:
+                                                                                650,
+                                                                          ),
+                                                                          transitionBuilder: (context,
+                                                                              anim1,
+                                                                              anim2,
+                                                                              child) {
+                                                                            return FadeTransition(
+                                                                              opacity: anim1.drive(
+                                                                                Tween(
+                                                                                  begin: 0,
+                                                                                  end: 1,
+                                                                                ),
+                                                                              ),
+                                                                              child: child,
+                                                                            );
+                                                                          },
+                                                                          transitionDuration:
+                                                                              const Duration(milliseconds: 200),
+                                                                          barrierDismissible:
+                                                                              true,
+                                                                        );
+                                                                        setState(
+                                                                            () {
+                                                                          dateTimeList;
+                                                                        });
+                                                                      },
+                                                                      style: ButtonStyle(
+                                                                          backgroundColor: MaterialStateProperty.all<Color>(Colors.deepPurple),
+                                                                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                                                            RoundedRectangleBorder(
+                                                                              borderRadius: BorderRadius.circular(5.0),
+                                                                            ),
+                                                                          )),
+                                                                      child: dateTimeList == null ? Center(child: Text("Select Date", style: TextStyle(color: Colors.white))) : Center(child: Text("${dateTimeList.toString().split(" ")[0]}", style: TextStyle(color: Colors.white)))),
+                                                                ),
                                                               ],
                                                             ),
                                                           ),
@@ -824,90 +1208,133 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                           ),
                                   ],
                                 ),
-                                selectedLocation == 'Select Location'
+                                FFAppState().location == 'Select Location'
                                     ? Container()
                                     : Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceAround,
                                         children: [
-                                          GestureDetector(
-                                            onTap: () {},
-                                            child: Padding(
-                                                padding: EdgeInsets.all(18.0),
-                                                child: TextButton(
-                                                  style: ButtonStyle(
-                                                    backgroundColor:
-                                                        MaterialStateProperty
-                                                            .all<Color>(Colors
-                                                                .deepPurple),
-                                                  ),
-                                                  onPressed: () {
-                                                    setState(() {
-                                                      tempbrand = tempproduct
-                                                          .toString()
-                                                          .split("(")[1]
-                                                          .split(')')[0]
-                                                          .trim();
-                                                      if (_quantityController
-                                                                  .text !=
-                                                              "0" &&
-                                                          tempproduct != "" &&
-                                                          tempproduct !=
-                                                              "Select Product" &&
+                                          Padding(
+                                              padding: EdgeInsets.all(18.0),
+                                              child: TextButton(
+                                                style: ButtonStyle(
+                                                  backgroundColor:
+                                                      MaterialStateProperty.all<
+                                                              Color>(
+                                                          Colors.deepPurple),
+                                                ),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    tempproduct = FFAppState()
+                                                        .productvalue;
+                                                    tempbrand = tempproduct
+                                                        .toString()
+                                                        .split("(")[1]
+                                                        .split(')')[0]
+                                                        .trim();
+                                                    if (dateTimeList == null) {
+                                                      Get.showSnackbar(GetBar(
+                                                        message:
+                                                            "Please select date!",
+                                                        duration: Duration(
+                                                            seconds: 2),
+                                                        snackPosition:
+                                                            SnackPosition
+                                                                .BOTTOM,
+                                                      ));
+                                                    } else {
+                                                      if (!isNumeric(
                                                           _quantityController
-                                                                  .text !=
-                                                              "Select Quantity" &&
-                                                          _quantityController
-                                                                  .text !=
-                                                              "" &&
-                                                          tempproduct != null) {
-                                                        mapdata.add({
-                                                          "product":
-                                                              tempproduct,
-                                                          "brand": tempbrand,
-                                                          "quantity":
-                                                              _quantityController
-                                                                  .text
-                                                        });
+                                                              .text)) {
+                                                        Get.showSnackbar(GetBar(
+                                                          message:
+                                                              "Please enter a valid quantity",
+                                                          duration: Duration(
+                                                              seconds: 2),
+                                                          snackPosition:
+                                                              SnackPosition
+                                                                  .BOTTOM,
+                                                        ));
                                                       } else {
-                                                        Get.showSnackbar(GetBar(
-                                                          message:
-                                                              "Please fill all the fields",
-                                                          duration: Duration(
-                                                              seconds: 2),
-                                                          snackPosition:
-                                                              SnackPosition
-                                                                  .BOTTOM,
-                                                        ));
+                                                        if (_quantityController
+                                                                    .text !=
+                                                                "0" &&
+                                                            tempproduct != "" &&
+                                                            tempproduct !=
+                                                                "Select Product" &&
+                                                            _quantityController
+                                                                    .text !=
+                                                                "Select Quantity" &&
+                                                            _quantityController
+                                                                    .text !=
+                                                                "" &&
+                                                            tempproduct !=
+                                                                null) {
+                                                          mapdata.add({
+                                                            "product":
+                                                                tempproduct,
+                                                            "brand": tempbrand,
+                                                            "quantity":
+                                                                _quantityController
+                                                                    .text,
+                                                            "date":
+                                                                dateTimeList,
+                                                            "description":
+                                                                _desController
+                                                                    .text,
+                                                          });
+                                                        } else {
+                                                          Get.showSnackbar(
+                                                              GetBar(
+                                                            message:
+                                                                "Please fill all the fields",
+                                                            duration: Duration(
+                                                                seconds: 2),
+                                                            snackPosition:
+                                                                SnackPosition
+                                                                    .BOTTOM,
+                                                          ));
+                                                        }
+                                                        if (_quantityController
+                                                                .text !=
+                                                            "0") {
+                                                          Get.showSnackbar(
+                                                              GetBar(
+                                                            message:
+                                                                "Product Added Successfully",
+                                                            duration: Duration(
+                                                                seconds: 2),
+                                                            snackPosition:
+                                                                SnackPosition
+                                                                    .BOTTOM,
+                                                          ));
+                                                        }
                                                       }
-                                                      if (_quantityController
-                                                              .text !=
-                                                          "0") {
-                                                        Get.showSnackbar(GetBar(
-                                                          message:
-                                                              "Product Added Successfully",
-                                                          duration: Duration(
-                                                              seconds: 2),
-                                                          snackPosition:
-                                                              SnackPosition
-                                                                  .BOTTOM,
-                                                        ));
-                                                      }
-                                                      _quantityController.text =
-                                                          '0';
-                                                      tempquantity1 = null;
-                                                    });
-                                                  },
-                                                  child: Text(
-                                                    "Add Product",
-                                                    style: TextStyle(
-                                                        color: const Color
-                                                                .fromARGB(
-                                                            255, 255, 255, 255),
-                                                        fontSize: 18.0),
-                                                  ),
-                                                )),
-                                          ),
+                                                    }
+
+                                                    _quantityController.text =
+                                                        '0';
+                                                    tempquantity1 = null;
+                                                    FFAppState().tempquantity =
+                                                        'null';
+                                                    FFAppState().productvalue =
+                                                        'Select Product';
+                                                    _desController.text = "";
+                                                    dateTimeList = null;
+                                                  });
+                                                },
+                                                child: Text(
+                                                  "Add Product",
+                                                  style: TextStyle(
+                                                      color:
+                                                          const Color.fromARGB(
+                                                              255,
+                                                              255,
+                                                              255,
+                                                              255),
+                                                      fontSize: 18.0),
+                                                ),
+                                              )),
                                         ],
                                       )
                               ],
@@ -938,8 +1365,7 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                           backgroundColor: Color(0xFF4B39EF)),
                       onPressed: () async {
                         bool anyproductfound = false;
-                        if (selectedCustomer == '' ||
-                            selectedCustomer == 'Select Customer') {
+                        if (FFAppState().customer == "Select Customer") {
                           Get.showSnackbar(GetBar(
                             message: "Please select a customer",
                             duration: Duration(seconds: 2),
@@ -967,7 +1393,7 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                       .toList();
                               print('okwofjweojfwo2');
                               for (var i in data) {
-                                if (i.locationName == selectedLocation) {
+                                if (i.locationName == FFAppState().location) {
                                   print('okwofjweojfwo3');
                                   for (var k in mapdata) {
                                     print(i.product!.pname);
@@ -987,11 +1413,13 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                       if (int.parse(i.product!.quantity!) >=
                                           int.parse(k['quantity'])) {
                                         print('okwofjweojfwo5');
+                                        print(k);
                                         i.history!.add(History(
-                                            datetime: DateTime.now().toString(),
+                                            datetime: k['date'].toString(),
+                                            description: k['description'],
                                             quantity: k['quantity'],
                                             status: "out",
-                                            customername: selectedCustomer,
+                                            customername: FFAppState().customer,
                                             finalquantity: (int.parse(
                                                         i.product!.quantity!) -
                                                     int.parse(k['quantity']))
@@ -1002,7 +1430,7 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                                 .toString()
                                                 .split("(")[0]
                                                 .trim(),
-                                                brand: k['brand'],
+                                            brand: k['brand'],
                                             type: "order"));
                                         print('okwofjweojfwo6');
 
@@ -1046,6 +1474,8 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                     snackPosition: SnackPosition.BOTTOM,
                                   ));
                                   print('okwofjweojfwo11');
+                                  Get.offAll(() => LocationlistWidget(),
+                                      arguments: "c");
                                 });
                               } else {
                                 Get.showSnackbar(GetBar(
@@ -1074,6 +1504,11 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
         ),
       ),
     );
+  }
+
+  bool isNumeric(String value) {
+    final numericValue = num.tryParse(value);
+    return numericValue != null;
   }
 }
 

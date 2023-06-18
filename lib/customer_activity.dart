@@ -78,6 +78,9 @@ class _ConsumerActivitylistWidgetState
     return parsedDate1.isBefore(parsedDate2);
   }
 
+  var locationlist = [];
+  var locationlist1 = [];
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -148,6 +151,7 @@ class _ConsumerActivitylistWidgetState
                                           startFirstDate: DateTime(1600)
                                               .subtract(
                                                   const Duration(days: 3652)),
+                                          type: OmniDateTimePickerType.date,
                                           startLastDate: DateTime.now().add(
                                             const Duration(days: 3652),
                                           ),
@@ -243,6 +247,8 @@ class _ConsumerActivitylistWidgetState
                                               print("j isfjiowe ${j}");
                                               if (j.customername ==
                                                   customername) {
+                                                locationlist
+                                                    .add(i.locationName);
                                                 print(
                                                     "customer nsoiefjowie ${customername}");
                                                 datalist.add(j);
@@ -253,7 +259,7 @@ class _ConsumerActivitylistWidgetState
                                           // code for filtering through date
                                           print(
                                               "showing the data: ${datalist}");
-
+                                          int count1 = 0;
                                           for (History k in datalist) {
                                             try {
                                               var logdate;
@@ -352,6 +358,16 @@ class _ConsumerActivitylistWidgetState
                                                     .add(k);
                                                 print(
                                                     "iwoejfowjeio $datalistwithfilteredvalue");
+                                                try {
+                                                  locationlist1.add(
+                                                      locationlist[count1]);
+                                                } catch (e) {
+                                                  print("error: $e");
+                                                }
+
+                                                count1++;
+                                              } else {
+                                                count1++;
                                               }
                                             } catch (e) {
                                               print("errorid weifjowiej: $e");
@@ -375,6 +391,8 @@ class _ConsumerActivitylistWidgetState
                                                   context: context,
                                                   startInitialDate:
                                                       DateTime.now(),
+                                                  type: OmniDateTimePickerType
+                                                      .date,
                                                   startFirstDate: DateTime(1600)
                                                       .subtract(const Duration(
                                                           days: 3652)),
@@ -572,17 +590,41 @@ class _ConsumerActivitylistWidgetState
                                                                         MainAxisAlignment
                                                                             .spaceBetween,
                                                                     children: [
-                                                                      Text(
-                                                                          '${datalistwithfilteredvalue[index].pname}${"\n"}(${datalistwithfilteredvalue[index].brand})',
-                                                                          style:
-                                                                              TextStyle(
-                                                                            color:
-                                                                                Color(0xFF4B39EF),
-                                                                            fontSize:
-                                                                                11,
-                                                                            fontWeight:
-                                                                                FontWeight.normal,
-                                                                          )),
+                                                                      Column(
+                                                                        crossAxisAlignment:
+                                                                            CrossAxisAlignment.start,
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.start,
+                                                                        children: [
+                                                                          Text(
+                                                                              '${datalistwithfilteredvalue[index].pname}${"\n"}(${datalistwithfilteredvalue[index].brand})',
+                                                                              style: TextStyle(
+                                                                                color: Color(0xFF4B39EF),
+                                                                                fontSize: 11,
+                                                                                fontWeight: FontWeight.normal,
+                                                                              )),
+                                                                          datalistwithfilteredvalue[index].status == "out"
+                                                                              ? Column(
+                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                                                  children: [
+                                                                                    Text('Description: ${datalistwithfilteredvalue[index].description}',
+                                                                                        style: TextStyle(
+                                                                                          color: Color(0xFF4B39EF),
+                                                                                          fontSize: 11,
+                                                                                          fontWeight: FontWeight.normal,
+                                                                                        )),
+                                                                                    Text('Location: ${locationlist1[index]}',
+                                                                                        style: TextStyle(
+                                                                                          color: Color(0xFF4B39EF),
+                                                                                          fontSize: 11,
+                                                                                          fontWeight: FontWeight.normal,
+                                                                                        )),
+                                                                                  ],
+                                                                                )
+                                                                              : Container(),
+                                                                        ],
+                                                                      ),
                                                                       datalistwithfilteredvalue[index].type ==
                                                                               "add"
                                                                           ? Text(
