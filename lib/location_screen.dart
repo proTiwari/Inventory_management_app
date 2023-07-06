@@ -43,7 +43,7 @@ class _LocationlistWidgetState extends State<LocationlistWidget>
       tabController = TabController(
         length: 3,
         vsync: this,
-        initialIndex: 2,
+        initialIndex: 1,
       )..addListener(() {
           setState(() {
             tabController;
@@ -177,7 +177,7 @@ class _LocationlistWidgetState extends State<LocationlistWidget>
                                 labelStyle: TextStyle(
                                   fontFamily: 'Plus Jakarta Sans',
                                   color: Colors.white,
-                                  fontSize: 14,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.normal,
                                 ),
                                 indicatorColor: Color.fromARGB(255, 4, 29, 143),
@@ -190,7 +190,7 @@ class _LocationlistWidgetState extends State<LocationlistWidget>
                                     text: 'Create Order',
                                   ),
                                   Tab(
-                                    text: 'My Customers',
+                                    text: 'Customers',
                                   ),
                                 ],
                               ),
@@ -1336,24 +1336,26 @@ class _LocationlistWidgetState extends State<LocationlistWidget>
                                     mainAxisSize: MainAxisSize.max,
                                     children: [
                                       Expanded(
-                                        flex: 1,
+                                        flex: 2,
                                         child: Container(
                                           color: Colors.white,
                                           width:
                                               MediaQuery.of(context).size.width,
-                                          child: TextFormField(
-                                            controller:
-                                                customersearchcontroller,
-                                            decoration: InputDecoration(
-                                              border: InputBorder.none,
-                                              hintText: 'Search',
-                                              prefixIcon: Icon(Icons.search),
+                                          child: Center(
+                                            child: TextFormField(
+                                              controller:
+                                                  customersearchcontroller,
+                                              decoration: InputDecoration(
+                                                border: InputBorder.none,
+                                                hintText: 'Search',
+                                                prefixIcon: Icon(Icons.search),
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ),
                                       Expanded(
-                                        flex: 11,
+                                        flex: 19,
                                         child: Container(
                                             width: MediaQuery.of(context)
                                                 .size
@@ -2137,66 +2139,69 @@ class _locationselectordialogState extends State<locationselectordialog> {
             height: 30,
             width: 300,
             child: ElevatedButton(
-                onPressed: () async {
-                  dateTimeList = await showOmniDateTimePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate:
-                        DateTime(1600).subtract(const Duration(days: 3652)),
-                    lastDate: DateTime.now().add(
-                      const Duration(days: 3652),
-                    ),
-                    is24HourMode: true,
-                    type: OmniDateTimePickerType.date,
-                    isShowSeconds: false,
-                    minutesInterval: 1,
-                    secondsInterval: 1,
-                    borderRadius: const BorderRadius.all(Radius.circular(16)),
-                    constraints: const BoxConstraints(
-                      maxWidth: 350,
-                      maxHeight: 650,
-                    ),
-                    transitionBuilder: (context, anim1, anim2, child) {
-                      return FadeTransition(
-                        opacity: anim1.drive(
-                          Tween(
-                            begin: 0,
-                            end: 1,
-                          ),
-                        ),
-                        child: child,
-                      );
-                    },
-                    transitionDuration: const Duration(milliseconds: 200),
-                    barrierDismissible: true,
-                  );
-                  setState(() {
-                    dateTimeList;
-                  });
-                },
-                style: ButtonStyle(
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5.0),
+              onPressed: () async {
+                dateTimeList = await showOmniDateTimePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate:
+                      DateTime(1600).subtract(const Duration(days: 3652)),
+                  lastDate: DateTime.now().add(
+                    const Duration(days: 3652),
                   ),
-                )),
-                child: dateTimeList == null
-                    ? Center(child: Text("Select Date"))
-                    : Center(
-                        child:
-                            Text("${dateTimeList.toString().split(" ")[0]}"))),
+                  is24HourMode: true,
+                  type: OmniDateTimePickerType.date,
+                  isShowSeconds: false,
+                  minutesInterval: 1,
+                  secondsInterval: 1,
+                  borderRadius: const BorderRadius.all(Radius.circular(16)),
+                  constraints: const BoxConstraints(
+                    maxWidth: 350,
+                    maxHeight: 650,
+                  ),
+                  transitionBuilder: (context, anim1, anim2, child) {
+                    return FadeTransition(
+                      opacity: anim1.drive(
+                        Tween(
+                          begin: 0,
+                          end: 1,
+                        ),
+                      ),
+                      child: child,
+                    );
+                  },
+                  transitionDuration: const Duration(milliseconds: 200),
+                  barrierDismissible: true,
+                );
+                setState(() {
+                  dateTimeList;
+                });
+              },
+              style: ButtonStyle(
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+              )),
+              child: dateTimeList == null
+                  ? const Center(child: Text("Select Date"))
+                  : Center(
+                      child: Text(
+                        dateTimeList.toString().split(" ")[0],
+                      ),
+                    ),
+            ),
           )
         ],
       ),
       actions: <Widget>[
         ElevatedButton(
-          child: Text('Cancel'),
+          child: const Text('Cancel'),
           onPressed: () {
             Navigator.of(context).pop();
           },
         ),
         ElevatedButton(
-          child: Text('Generate Report'),
+          child: const Text('Generate Report'),
           onPressed: () async {
             if (dateTimeList == null) {
               Get.showSnackbar(GetBar(
@@ -2206,6 +2211,8 @@ class _locationselectordialogState extends State<locationselectordialog> {
               return;
             }
             print('location is sdf $locationS  $dateTimeList');
+
+            // select all
             if (locationS == "Select All") {
               List locationList = [];
               locationlist = [];
@@ -2265,17 +2272,19 @@ class _locationselectordialogState extends State<locationselectordialog> {
                             print("fsese9");
                             try {
                               print("weiw1");
-                              if (n.datetime == dateTimeList.toString()) {
+                              if (n.datetime.toString() ==
+                                  dateTimeList.toString()) {
                                 print("fsese11");
                                 print("weiw2");
                                 quantity = n.finalquantity!;
                                 print("weiw3");
                               } else {
                                 print("fsese12");
-                                DateTime dt1 = DateTime.parse(n.datetime!);
+                                DateTime dt1 =
+                                    DateTime.parse(n.datetime!.toString());
                                 print("weiw4");
-                                DateTime dt2 =
-                                    DateTime.parse(dateTimeList.toString());
+                                DateTime dt2 = DateTime.parse(
+                                    "${dateTimeList.toString().split(" ")[0]} 23:59:00.000");
                                 print("weiw5");
                                 print("fsese13");
 
@@ -2293,10 +2302,11 @@ class _locationselectordialogState extends State<locationselectordialog> {
                               print('sfsjfowijfeow: ${e}');
                             }
                           }
+                          print("quantitylist: ${quantitylist}");
 
                           print("date list ${datelist}");
 
-                          if (datelist.length > 0) {
+                          if (datelist.isNotEmpty) {
                             var max = datelist[0];
                             for (var i = 0; i < datelist.length; i++) {
                               try {
@@ -2311,7 +2321,7 @@ class _locationselectordialogState extends State<locationselectordialog> {
                               var index = datelist.indexOf(max);
                               quantity = quantitylist[index];
                             } catch (e) {
-                              print("jkjkj wiejowejfo: ${e}");
+                              print("jkjkj  ; wiejowejfo: ${e}");
                             }
                           }
                         } catch (e) {
@@ -2363,6 +2373,7 @@ class _locationselectordialogState extends State<locationselectordialog> {
                   productlist = product;
                   selectedDate = dateTimeList;
                 }).whenComplete(() {
+                  Navigator.of(context).pop();
                   Get.toNamed(AppRoutes.pdfscreen);
                 });
               } catch (e) {
@@ -2414,8 +2425,8 @@ class _locationselectordialogState extends State<locationselectordialog> {
                         } else {
                           DateTime dt1 = DateTime.parse(n.datetime!);
                           print("weiw4");
-                          DateTime dt2 =
-                              DateTime.parse(dateTimeList.toString());
+                          DateTime dt2 = DateTime.parse(
+                              "${dateTimeList.toString().split(" ")[0]} 23:59:00.000");
                           print("weiw5");
 
                           if (dt1.compareTo(dt2) < 0) {
@@ -2431,7 +2442,7 @@ class _locationselectordialogState extends State<locationselectordialog> {
                       }
                     }
 
-                    if (datelist.length > 0) {
+                    if (datelist.isNotEmpty) {
                       var max = datelist[0];
                       for (var i = 0; i < datelist.length; i++) {
                         try {
@@ -2439,30 +2450,32 @@ class _locationselectordialogState extends State<locationselectordialog> {
                             max = datelist[i];
                           }
                         } catch (e) {
-                          print("fwddefw wiejowejfo: ${e}");
+                          print("fwddefw wiejowejfo: $e");
                         }
                       }
                       try {
                         var index = datelist.indexOf(max);
                         quantity = quantitylist[index];
                       } catch (e) {
-                        print("jkjkj wiejowejfo: ${e}");
+                        print("jkjkj l wiejowejfo: $e");
                       }
                     }
                   } catch (e) {
-                    print("printing wiejowejfo: ${e}");
+                    print("printing k wiejowejfo: $e");
                   }
                   if (locationS == k.locationName) {
                     count++;
                     if (count > 14 || recentlocation != locationS) {
                       count = 1;
                       if (count == 1) {
+                        locationlist.add(locationS);
                         product.add([
                           [k.product!.pname, k.product!.category, quantity]
                         ]);
                       }
                     } else {
                       if (count == 1) {
+                        locationlist.add(locationS);
                         product.add([
                           [k.product!.pname, k.product!.category, quantity]
                         ]);
@@ -2472,10 +2485,9 @@ class _locationselectordialogState extends State<locationselectordialog> {
                       }
                     }
                     try {
-                      locationlist = [locationS];
                       recentlocation = locationS;
                     } catch (e) {
-                      print(e);
+                      print("fweiofwjojf: ${e}");
                     }
                   }
                 }
@@ -2483,6 +2495,7 @@ class _locationselectordialogState extends State<locationselectordialog> {
                 productlist = product;
                 selectedDate = dateTimeList;
               }).whenComplete(() {
+                Navigator.of(context).pop();
                 Get.toNamed(AppRoutes.pdfscreen);
               });
             }

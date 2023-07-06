@@ -379,6 +379,12 @@ class _ActivitylistWidgetState extends State<ActivitylistWidget> {
                                             }
                                           }
 
+                                          datalistwithfilteredvalue.sort(
+                                              (a, b) => a.datetime!
+                                                  .compareTo(b.datetime!));
+                                          datalistwithfilteredvalue =
+                                              datalistwithfilteredvalue.reversed
+                                                  .toList();
                                           print("datasfewe: ${datalist}");
                                           if (dateTimeList != null &&
                                               datalistwithfilteredvalue
@@ -394,7 +400,8 @@ class _ActivitylistWidgetState extends State<ActivitylistWidget> {
                                                 dateTimeList =
                                                     await showOmniDateTimeRangePicker(
                                                   context: context,
-                                                  type: OmniDateTimePickerType.date,
+                                                  type: OmniDateTimePickerType
+                                                      .date,
                                                   startInitialDate:
                                                       DateTime.now(),
                                                   startFirstDate: DateTime(1600)
@@ -636,15 +643,15 @@ class _ActivitylistWidgetState extends State<ActivitylistWidget> {
                                                                         ],
                                                                       ),
                                                                       datalistwithfilteredvalue[index].type ==
-                                                                              "add"
-                                                                          ? Text(
-                                                                              'Product Added',
-                                                                              style: TextStyle(
-                                                                                fontFamily: 'Plus Jakarta Sans',
-                                                                                color: Color.fromARGB(255, 0, 197, 85),
-                                                                                fontSize: 11,
-                                                                                fontWeight: FontWeight.normal,
-                                                                              ))
+                                                                              "add"? Container()
+                                                                          // ? Text(
+                                                                          //     'Product Added',
+                                                                          //     style: TextStyle(
+                                                                          //       fontFamily: 'Plus Jakarta Sans',
+                                                                          //       color: Color.fromARGB(255, 0, 197, 85),
+                                                                          //       fontSize: 11,
+                                                                          //       fontWeight: FontWeight.normal,
+                                                                          //     ))
                                                                           : datalistwithfilteredvalue[index].status == "in"
                                                                               ? Text('Quantity Added (${datalistwithfilteredvalue[index].initialquantity} + ${int.parse(datalistwithfilteredvalue[index].finalquantity.toString()) - int.parse(datalistwithfilteredvalue[index].initialquantity.toString())} = ${datalistwithfilteredvalue[index].finalquantity})',
                                                                                   style: TextStyle(

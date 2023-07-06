@@ -65,10 +65,10 @@ class FFAppState extends ChangeNotifier {
     _brandmap = _value;
   }
 
-  bool _advanceMoney = false;
-  bool get advanceMoney => _advanceMoney;
-  set advanceMoney(bool _value) {
-    _advanceMoney = _value;
+  bool _changestate = false;
+  bool get changestate => _changestate;
+  set changestate(bool _value) {
+    _changestate = _value;
   }
 
   bool _foodService = false;

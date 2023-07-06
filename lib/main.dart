@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:universal_html/html.dart' as html;
 
 import 'package:firebase_core/firebase_core.dart';
@@ -56,6 +57,9 @@ class MyApp extends StatelessWidget {
     }
 
     return GetMaterialApp(
+      shortcuts: {
+        LogicalKeySet(LogicalKeyboardKey.space): ActivateIntent(),
+      },
       routes: {
         '/admin/': (context) => const AdminLoginpageWidget(),
       },

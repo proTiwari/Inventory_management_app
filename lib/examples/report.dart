@@ -28,7 +28,12 @@ import '../data.dart';
 
 Future<Uint8List> generateReport(
     PdfPageFormat pageFormat, CustomData data) async {
-  const tableHeaders = ['S NO', '      PRODUCT      ', '      BRAND      ', '       QTY        '];
+  const tableHeaders = [
+    'S NO',
+    '      PRODUCT      ',
+    '      BRAND      ',
+    '       QTY        '
+  ];
   var dataTable = productlist;
 
   const baseColor = PdfColors.grey600;
@@ -64,12 +69,18 @@ Future<Uint8List> generateReport(
           ];
           if (templocation == locationlist[i]) {
             print("iwefiowjeofjwo $templocation");
-            tempindex = 14;
+            tempindex = 14 + tempindex;
           } else {
             print("fojweo $templocation");
             tempindex = 0;
           }
+          print('eiowoeiwoe $tempindex');
           templocation = locationlist[i];
+          print("efjwefjw $i");
+          print(locationlist[i]);
+          print(templocation);
+          print(
+              "Date :- ${selectedDate.toString().split(" ")[0].split("-")[2]}/${selectedDate.toString().split(" ")[0].split("-")[1]}/${selectedDate.toString().split(" ")[0].split("-")[0]}");
           return pw.Column(children: [
             pw.Expanded(
               flex: 55,
@@ -97,15 +108,26 @@ Future<Uint8List> generateReport(
                   pw.TableHelper.fromTextArray(
                     cellHeight: 38,
                     headers: tableHeaders,
-                    data: List<List<dynamic>>.generate(
-                      dataTable[i].length,
-                      (index) => <dynamic>[
-                        "${tempindex + index + 1}",
-                        dataTable[i][index][0] ?? 0,
-                        dataTable[i][index][1] ?? 0,
-                        dataTable[i][index][2] ?? 0
-                      ],
-                    ),
+                    data: List<List<dynamic>>.generate(dataTable[i].length,
+                        (index) {
+                      try {
+                        print("iwoefjwweifo ${tempindex + index + 1}");
+                        print(dataTable[i][index][0] ?? 0);
+                        print(dataTable[i][index][1] ?? 0);
+                        print(dataTable[i][index][2] ?? 0);
+                        return <dynamic>[
+                          "${tempindex + index + 1}",
+                          dataTable[i][index][0] ?? 0,
+                          dataTable[i][index][1] ?? 0,
+                          dataTable[i][index][2] ?? 0
+                        ];
+                      } catch (e) {
+                        print("error id  wkefoiej ${e}");
+                        print("iwoefjwweifo $index");
+
+                        return <dynamic>["${tempindex + index + 1}", 0, 0, 0];
+                      }
+                    }),
                     headerStyle: pw.TextStyle(
                       color: PdfColors.black,
                       fontSize: 14,

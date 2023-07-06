@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -56,6 +58,9 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
 
   var _errorText;
 
+  var Oid;
+  List OidList = [];
+
   _validateInput(String value) {
     if (value.isEmpty) {
       return 'Please enter a quantity';
@@ -64,8 +69,8 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
     if (numericValue == null) {
       return 'Please enter a valid quantity';
     }
-    if (numericValue > int.parse(FFAppState().tempquantity)) {
-      return 'quantity cannot be greater than ${FFAppState().tempquantity}';
+    if (numericValue > int.parse(FFAppState().tempquantity) - tempqt) {
+      return 'quantity cannot be greater than ${int.parse(FFAppState().tempquantity) - tempqt}';
     }
     return null;
   }
@@ -435,6 +440,8 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
     );
   }
 
+  int tempqt = 0;
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -639,93 +646,134 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                                       ),
                                                     ),
                                                   ),
-                                                )
-                                          //   DropdownButtonFormField<String>(
-                                          // value: "Select Location",
-                                          // hint: Text('Select location'),
-                                          // items: allLocations
-                                          //     .map((String location) {
-                                          //   return DropdownMenuItem<String>(
-                                          //     value: location,
-                                          //     child: Text(location),
-                                          //   );
-                                          // }).toList(),
-                                          // onChanged: (String? value) {
-                                          //   setState(() {
-                                          //     selectedProduct =
-                                          //         "Select Product";
-                                          //     items = 1;
-                                          //     products = ["Select Product"];
-                                          //     selectedLocation = value!;
-
-                                          //     brandmap[selectedLocation]!
-                                          //         .forEach((key, value) {
-                                          //       for (var k in value) {
-                                          //         if (k != "Select Brand") {
-                                          //           products
-                                          //               .add("${key} (${k})");
-                                          //         }
-                                          //       }
-                                          //     });
-
-                                          // tempquantity1 = totaldata[0]
-                                          //     .product!
-                                          //     .quantity;
-                                          // });
-                                          // },
-                                          // ),
-                                          ),
-                                      // Expanded(
-                                      //   child: GestureDetector(
-                                      //     onTap: () {
-                                      //       // showDialog box
-                                      //       showDialog(
-                                      //         context: context,
-                                      //         builder: (context) {
-                                      //           return AlertDialog(
-                                      //             title: Text('Add Location'),
-                                      //             content: Column(
-                                      //               mainAxisSize:
-                                      //                   MainAxisSize.min,
-                                      //               children: <Widget>[
-                                      //                 TextField(
-                                      //                   controller:
-                                      //                       _locationController,
-                                      //                   decoration:
-                                      //                       InputDecoration(
-                                      //                     labelText:
-                                      //                         'Location Name',
-                                      //                   ),
-                                      //                 ),
-                                      //               ],
-                                      //             ),
-                                      //             actions: <Widget>[
-                                      //               ElevatedButton(
-                                      //                 child: Text('Cancel'),
-                                      //                 onPressed: () {
-                                      //                   Navigator.of(context)
-                                      //                       .pop();
-                                      //                 },
-                                      //               ),
-                                      //               ElevatedButton(
-                                      //                 child: Text(
-                                      //                     'Add Location'),
-                                      //                 onPressed: _addLocation,
-                                      //               ),
-                                      //             ],
-                                      //           );
-                                      //         },
-                                      //       );
-                                      //     },
-                                      //     child: Icon(
-                                      //       Icons.add_circle,
-                                      //       color: Colors.deepPurple,
-                                      //       size: 24.0,
-                                      //     ),
-                                      //   ),
-                                      // )
+                                                )),
                                     ]),
-                                    FFAppState().location == 'Select Location'
+                                    SizedBox(
+                                      height: 16,
+                                    ),
+                                    SizedBox(
+                                      height: 50.0,
+                                      child: ElevatedButton(
+                                        onPressed: () async {
+                                          dateTimeList =
+                                              await showOmniDateTimePicker(
+                                            context: context,
+                                            type: OmniDateTimePickerType.date,
+                                            initialDate: DateTime.now(),
+                                            firstDate: DateTime(1600).subtract(
+                                                const Duration(days: 3652)),
+                                            lastDate: DateTime.now().add(
+                                              const Duration(days: 3652),
+                                            ),
+                                            is24HourMode: true,
+                                            isShowSeconds: false,
+                                            minutesInterval: 1,
+                                            secondsInterval: 1,
+                                            borderRadius:
+                                                const BorderRadius.all(
+                                                    Radius.circular(16)),
+                                            constraints: const BoxConstraints(
+                                              maxWidth: 350,
+                                              maxHeight: 650,
+                                            ),
+                                            transitionBuilder:
+                                                (context, anim1, anim2, child) {
+                                              return FadeTransition(
+                                                opacity: anim1.drive(
+                                                  Tween(
+                                                    begin: 0,
+                                                    end: 1,
+                                                  ),
+                                                ),
+                                                child: child,
+                                              );
+                                            },
+                                            transitionDuration: const Duration(
+                                                milliseconds: 200),
+                                            barrierDismissible: true,
+                                          );
+
+                                          setState(() {
+                                            dateTimeList;
+                                            dateTimeList =
+                                                "${dateTimeList.toString().split(" ")[0]} ${DateTime.now().toString().split(" ")[1]}";
+                                          });
+
+                                          // code for doing filter
+                                          for (var i in FFAppState().product) {
+                                            var productname;
+                                            var brandname;
+                                            productname = i
+                                                .toString()
+                                                .split("(")[0]
+                                                .trim();
+                                            brandname = i
+                                                .toString()
+                                                .split("(")[1]
+                                                .split(')')[0]
+                                                .trim();
+
+                                            for (Location j in totaldata) {
+                                              if (j.product!.pname ==
+                                                      productname &&
+                                                  j.product!.category ==
+                                                      brandname) {
+                                                var maxdate =
+                                                    "2003-07-06 23:02:11.098";
+                                                var quant;
+                                                for (History k in j.history!) {
+                                                  if (dateTimeList.compareTo(
+                                                              k.datetime) >
+                                                          0 ||
+                                                      dateTimeList.compareTo(
+                                                              k.datetime) ==
+                                                          0) {
+                                                    if (k.datetime!.compareTo(
+                                                            maxdate) >
+                                                        0) {
+                                                      maxdate = k.datetime!;
+                                                      quant = k.finalquantity;
+                                                    }
+                                                  }
+                                                }
+                                                if (quant == null ||
+                                                    quant == '0') {
+                                                  FFAppState()
+                                                      .product
+                                                      .remove(i);
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
+                                        style: ButtonStyle(
+                                            backgroundColor:
+                                                MaterialStateProperty.all<
+                                                    Color>(Colors.deepPurple),
+                                            shape: MaterialStateProperty.all<
+                                                RoundedRectangleBorder>(
+                                              RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(5.0),
+                                              ),
+                                            )),
+                                        child: dateTimeList == null
+                                            ? Center(
+                                                child: Text("Select Date",
+                                                    style: TextStyle(
+                                                        color: Colors.white)))
+                                            : Center(
+                                                child: Text(
+                                                  "${dateTimeList.toString().split(" ")[0]}",
+                                                  style: TextStyle(
+                                                      color: Colors.white),
+                                                ),
+                                              ),
+                                      ),
+                                    ),
+                                    FFAppState().location ==
+                                                'Select Location' ||
+                                            dateTimeList == null
                                         ? Container()
                                         : Container(
                                             child: Column(
@@ -744,6 +792,11 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                                               (BuildContext
                                                                       context,
                                                                   int i) {
+                                                            mapdata.sort((a,
+                                                                    b) =>
+                                                                a['date']
+                                                                    .compareTo(b[
+                                                                        'date']));
                                                             return GestureDetector(
                                                                 onTap: () {
                                                                   setState(() {
@@ -800,102 +853,40 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                                                 Row(
                                                                   children: [
                                                                     Expanded(
-                                                                        child: boolsearchproduct
-                                                                            ? Search(FFAppState().product, Changeboolfunproduct, 'p')
-                                                                            : GestureDetector(
-                                                                                onTap: () {
-                                                                                  setState(() {
-                                                                                    boolsearchproduct = true;
-                                                                                  });
-                                                                                },
-                                                                                child: Container(
-                                                                                  decoration: BoxDecoration(
-                                                                                    border: Border.all(color: const Color.fromARGB(255, 255, 255, 255)),
-                                                                                    borderRadius: BorderRadius.circular(4.0),
-                                                                                    color: Colors.grey.shade300,
-                                                                                  ),
-                                                                                  padding: EdgeInsets.all(8.0),
-                                                                                  child: TextField(
-                                                                                    enabled: false,
-                                                                                    decoration: InputDecoration(
-                                                                                      border: InputBorder.none,
-                                                                                      hintText: '${FFAppState().productvalue}',
-                                                                                      hintStyle: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
-                                                                                    ),
+                                                                      child: boolsearchproduct
+                                                                          ? Search(FFAppState().product, Changeboolfunproduct, 'p')
+                                                                          : GestureDetector(
+                                                                              onTap: () {
+                                                                                setState(() {
+                                                                                  boolsearchproduct = true;
+                                                                                });
+                                                                              },
+                                                                              child: Container(
+                                                                                decoration: BoxDecoration(
+                                                                                  border: Border.all(color: const Color.fromARGB(255, 255, 255, 255)),
+                                                                                  borderRadius: BorderRadius.circular(4.0),
+                                                                                  color: Colors.grey.shade300,
+                                                                                ),
+                                                                                padding: EdgeInsets.all(8.0),
+                                                                                child: TextField(
+                                                                                  enabled: false,
+                                                                                  decoration: InputDecoration(
+                                                                                    border: InputBorder.none,
+                                                                                    hintText: '${FFAppState().productvalue}',
+                                                                                    hintStyle: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
                                                                                   ),
                                                                                 ),
-                                                                              )
-                                                                        // DropdownButtonFormField<
-                                                                        //     String>(
-                                                                        //   value:
-                                                                        //       products[0],
-                                                                        //   hint: Text(
-                                                                        //       'Select product'),
-                                                                        //   items: products.map((String
-                                                                        //       product) {
-                                                                        //     return DropdownMenuItem<
-                                                                        //         String>(
-                                                                        //       value:
-                                                                        //           product,
-                                                                        //       child:
-                                                                        //           Text(product),
-                                                                        //     );
-                                                                        //   }).toList(),
-                                                                        //   onChanged:
-                                                                        //       (String?
-                                                                        //           value) async {
-                                                                        //     setState(
-                                                                        //         () {
-                                                                        //       var product =
-                                                                        //           value.toString().split("(")[0].trim();
-                                                                        //       tempproduct =
-                                                                        //           value!;
-                                                                        //       // tempcompletebrandlist =
-                                                                        //       //     brandmap[selectedLocation]![value]!;
-                                                                        //       print("total data: ${totaldata}");
-                                                                        //       for (Location i
-                                                                        //           in totaldata) {
-                                                                        //         if (i.product!.pname == product && i.product!.category == value.toString().split("(")[1].split(")")[0].trim()) {
-                                                                        //           print(i.product!.quantity);
-                                                                        //           tempquantity1 = i.product!.quantity;
-                                                                        //           print(i.product!.category);
-                                                                        //         }
-                                                                        //       }
-                                                                        //     });
-                                                                        //   },
-                                                                        // ),
-                                                                        )
+                                                                              ),
+                                                                            ),
+                                                                    )
                                                                   ],
                                                                 ),
-                                                                // Container(
-                                                                //   height: 100.0,
-                                                                //   child: ListView
-                                                                //       .builder(
-                                                                //     itemCount:
-                                                                //         tempcompletebrandlist
-                                                                //             .length,
-                                                                //     scrollDirection:
-                                                                //         Axis.horizontal,
-                                                                //     itemBuilder:
-                                                                //         (BuildContext
-                                                                //                 context,
-                                                                //             int i) {
-                                                                //       return tempcompletebrandlist[i] ==
-                                                                //               "Select Brand"
-                                                                //           ? Container()
-                                                                //           : GestureDetector(
-                                                                //               onTap: () {
-                                                                //                 setState(() {
-                                                                //                   tempbrand = tempcompletebrandlist[i];
-                                                                //                 });
-                                                                //               },
-                                                                //               child: buildOvalContainer(tempbrand == tempcompletebrandlist[i] ? Color.fromARGB(255, 115, 132, 231) : Color.fromARGB(255, 115, 218, 231), tempcompletebrandlist[i]));
-                                                                //     },
-                                                                //   ),
-                                                                // ),
                                                                 SizedBox(
                                                                     height:
                                                                         16.0),
+                                                                SizedBox(
+                                                                  width: 16,
+                                                                ),
                                                                 TextFormField(
                                                                   controller:
                                                                       _quantityController,
@@ -1016,19 +1007,18 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                                                     : Column(
                                                                         children: [
                                                                           Text(
-                                                                            "Total Quantity available: ${FFAppState().tempquantity}",
+                                                                            "Total Quantity available: ${int.parse(FFAppState().tempquantity) - tempqt}",
                                                                             style:
                                                                                 TextStyle(color: Color.fromARGB(255, 6, 152, 101)),
                                                                           ),
-                                                                          _errorText == null && _quantityController.text.isNotEmpty && FFAppState().tempquantity.toString() != 'null' && int.parse(_quantityController.text.toString()) < int.parse(FFAppState().tempquantity.toString())
+                                                                          _errorText == null && _quantityController.text.isNotEmpty && FFAppState().tempquantity.toString() != 'null' && int.parse(_quantityController.text.toString()) < (int.parse(FFAppState().tempquantity.toString()) - tempqt)
                                                                               ? Text(
-                                                                                  "After Sale Qty: ${int.parse(FFAppState().tempquantity.toString()) - int.parse(_quantityController.text.toString())}",
+                                                                                  "After Sale Qty: ${int.parse(FFAppState().tempquantity.toString()) - tempqt - int.parse(_quantityController.text.toString())}",
                                                                                   style: TextStyle(color: Color.fromARGB(255, 238, 99, 0)),
                                                                                 )
                                                                               : Container(),
                                                                         ],
                                                                       ),
-
                                                                 SizedBox(
                                                                     height:
                                                                         16.0),
@@ -1115,9 +1105,6 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                                                             .normal,
                                                                   ),
                                                                   maxLines: 1,
-                                                                  keyboardType:
-                                                                      TextInputType
-                                                                          .number,
                                                                   onChanged:
                                                                       (val) {
                                                                     setState(
@@ -1126,74 +1113,6 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                                                 ),
                                                                 SizedBox(
                                                                   height: 16.0,
-                                                                ),
-                                                                SizedBox(
-                                                                  height: 50.0,
-                                                                  child: ElevatedButton(
-                                                                      onPressed: () async {
-                                                                        dateTimeList =
-                                                                            await showOmniDateTimePicker(
-                                                                          context:
-                                                                              context,
-                                                                          type:
-                                                                              OmniDateTimePickerType.date,
-                                                                          initialDate:
-                                                                              DateTime.now(),
-                                                                          firstDate:
-                                                                              DateTime(1600).subtract(const Duration(days: 3652)),
-                                                                          lastDate:
-                                                                              DateTime.now().add(
-                                                                            const Duration(days: 3652),
-                                                                          ),
-                                                                          is24HourMode:
-                                                                              true,
-                                                                          isShowSeconds:
-                                                                              false,
-                                                                          minutesInterval:
-                                                                              1,
-                                                                          secondsInterval:
-                                                                              1,
-                                                                          borderRadius:
-                                                                              const BorderRadius.all(Radius.circular(16)),
-                                                                          constraints:
-                                                                              const BoxConstraints(
-                                                                            maxWidth:
-                                                                                350,
-                                                                            maxHeight:
-                                                                                650,
-                                                                          ),
-                                                                          transitionBuilder: (context,
-                                                                              anim1,
-                                                                              anim2,
-                                                                              child) {
-                                                                            return FadeTransition(
-                                                                              opacity: anim1.drive(
-                                                                                Tween(
-                                                                                  begin: 0,
-                                                                                  end: 1,
-                                                                                ),
-                                                                              ),
-                                                                              child: child,
-                                                                            );
-                                                                          },
-                                                                          transitionDuration:
-                                                                              const Duration(milliseconds: 200),
-                                                                          barrierDismissible:
-                                                                              true,
-                                                                        );
-                                                                        setState(
-                                                                            () {
-                                                                          dateTimeList;
-                                                                        });
-                                                                      },
-                                                                      style: ButtonStyle(
-                                                                          backgroundColor: MaterialStateProperty.all<Color>(Colors.deepPurple),
-                                                                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                                                            RoundedRectangleBorder(
-                                                                              borderRadius: BorderRadius.circular(5.0),
-                                                                            ),
-                                                                          )),
-                                                                      child: dateTimeList == null ? Center(child: Text("Select Date", style: TextStyle(color: Colors.white))) : Center(child: Text("${dateTimeList.toString().split(" ")[0]}", style: TextStyle(color: Colors.white)))),
                                                                 ),
                                                               ],
                                                             ),
@@ -1208,23 +1127,32 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                           ),
                                   ],
                                 ),
-                                FFAppState().location == 'Select Location'
+                                FFAppState().location == 'Select Location' ||
+                                        dateTimeList == null
                                     ? Container()
                                     : Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceAround,
                                         children: [
                                           Padding(
-                                              padding: EdgeInsets.all(18.0),
-                                              child: TextButton(
-                                                style: ButtonStyle(
-                                                  backgroundColor:
-                                                      MaterialStateProperty.all<
-                                                              Color>(
-                                                          Colors.deepPurple),
-                                                ),
-                                                onPressed: () {
-                                                  setState(() {
+                                            padding: EdgeInsets.all(18.0),
+                                            child: TextButton(
+                                              style: ButtonStyle(
+                                                backgroundColor:
+                                                    MaterialStateProperty.all<
+                                                            Color>(
+                                                        Colors.deepPurple),
+                                              ),
+                                              onPressed: () {
+                                                setState(() {
+                                                  if (int.parse(
+                                                          _quantityController
+                                                              .text
+                                                              .toString()) <=
+                                                      int.parse(FFAppState()
+                                                              .tempquantity
+                                                              .toString()) -
+                                                          tempqt) {
                                                     tempproduct = FFAppState()
                                                         .productvalue;
                                                     tempbrand = tempproduct
@@ -1271,6 +1199,10 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                                             tempproduct !=
                                                                 null) {
                                                           mapdata.add({
+                                                            "tempquantity":
+                                                                FFAppState()
+                                                                    .tempquantity
+                                                                    .toString(),
                                                             "product":
                                                                 tempproduct,
                                                             "brand": tempbrand,
@@ -1320,21 +1252,27 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                                     FFAppState().productvalue =
                                                         'Select Product';
                                                     _desController.text = "";
-                                                    dateTimeList = null;
-                                                  });
-                                                },
-                                                child: Text(
-                                                  "Add Product",
-                                                  style: TextStyle(
-                                                      color:
-                                                          const Color.fromARGB(
-                                                              255,
-                                                              255,
-                                                              255,
-                                                              255),
-                                                      fontSize: 18.0),
-                                                ),
-                                              )),
+                                                  } else {
+                                                    Get.showSnackbar(GetBar(
+                                                      message:
+                                                          "Quantity should be less than available quantity",
+                                                      duration:
+                                                          Duration(seconds: 2),
+                                                      snackPosition:
+                                                          SnackPosition.BOTTOM,
+                                                    ));
+                                                  }
+                                                });
+                                              },
+                                              child: Text(
+                                                "Add Product",
+                                                style: TextStyle(
+                                                    color: const Color.fromARGB(
+                                                        255, 255, 255, 255),
+                                                    fontSize: 18.0),
+                                              ),
+                                            ),
+                                          ),
                                         ],
                                       )
                               ],
@@ -1395,6 +1333,8 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                               for (var i in data) {
                                 if (i.locationName == FFAppState().location) {
                                   print('okwofjweojfwo3');
+                                  mapdata.sort(
+                                      (a, b) => a['date'].compareTo(b['date']));
                                   for (var k in mapdata) {
                                     print(i.product!.pname);
                                     print(k['product']
@@ -1410,28 +1350,62 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                                 .trim() &&
                                         i.product!.category == k['brand']) {
                                       print('okwofjweojfwo4');
-                                      if (int.parse(i.product!.quantity!) >=
+                                      print(k['tempquantity']);
+                                      if (int.parse(k['tempquantity']) >=
                                           int.parse(k['quantity'])) {
                                         print('okwofjweojfwo5');
                                         print(k);
-                                        i.history!.add(History(
-                                            datetime: k['date'].toString(),
-                                            description: k['description'],
-                                            quantity: k['quantity'],
-                                            status: "out",
-                                            customername: FFAppState().customer,
-                                            finalquantity: (int.parse(
-                                                        i.product!.quantity!) -
-                                                    int.parse(k['quantity']))
-                                                .toString(),
-                                            initialquantity:
-                                                i.product!.quantity!,
-                                            pname: k['product']
-                                                .toString()
-                                                .split("(")[0]
-                                                .trim(),
-                                            brand: k['brand'],
-                                            type: "order"));
+                                        Oid = DateTime.now()
+                                                .millisecondsSinceEpoch
+                                                .toString() +
+                                            Random().nextInt(10000).toString();
+                                        OidList.add(Oid);
+                                        print('eifjewfwefw');
+                                        try {
+                                          i.history!.add(History(
+                                              id: Oid,
+                                              datetime: k['date'].toString(),
+                                              description: k['description'],
+                                              quantity: k['quantity'],
+                                              status: "out",
+                                              customername:
+                                                  FFAppState().customer,
+                                              finalquantity: (int.parse(
+                                                          k['tempquantity']) -
+                                                      int.parse(k['quantity']))
+                                                  .toString(),
+                                              initialquantity:
+                                                  k['tempquantity'],
+                                              pname: k['product']
+                                                  .toString()
+                                                  .split("(")[0]
+                                                  .trim(),
+                                              brand: k['brand'],
+                                              type: "order"));
+                                        } catch (e) {
+                                          print("error id oiwfjoweijo: ${e}");
+                                          i.history!.add(History(
+                                              id: Oid,
+                                              datetime: k['date'].toString(),
+                                              description: k['description'],
+                                              quantity: k['quantity'],
+                                              status: "out",
+                                              customername:
+                                                  FFAppState().customer,
+                                              finalquantity: (int.parse(
+                                                          k['tempquantity']) -
+                                                      int.parse(k['quantity']))
+                                                  .toString(),
+                                              initialquantity:
+                                                  k['tempquantity'],
+                                              pname: k['product']
+                                                  .toString()
+                                                  .split("(")[0]
+                                                  .trim(),
+                                              brand: k['brand'],
+                                              type: "order"));
+                                        }
+
                                         print('okwofjweojfwo6');
 
                                         i.product!.quantity =
@@ -1440,6 +1414,7 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                                 .toString();
                                         print('okwofjweojfwo7');
                                         anyproductfound = true;
+                                        break;
                                       } else {
                                         Get.showSnackbar(GetBar(
                                           message:
@@ -1447,6 +1422,7 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                           duration: Duration(seconds: 2),
                                           snackPosition: SnackPosition.BOTTOM,
                                         ));
+                                        break;
                                       }
                                     }
                                   }
@@ -1466,6 +1442,104 @@ class _CreateorderWidgetState extends State<CreateorderWidget> {
                                 }).whenComplete(() {
                                   setState(() {
                                     mapdata.clear();
+                                  });
+                                  // CODE FOR UPDATING ALL FUTHER PRODUCTS
+                                  try {
+                                    var id = Oid;
+                                    print("lid: $id");
+                                    FirebaseFirestore.instance
+                                        .collection("users")
+                                        .doc(FirebaseAuth
+                                            .instance.currentUser!.uid)
+                                        .get()
+                                        .then((value) {
+                                      OwnerModel data = OwnerModel.fromJson(
+                                          value.data() as Map<String, dynamic>);
+                                      print('klklk');
+                                      var quantity;
+                                      var date;
+
+                                      for (Location i in data.locations!) {
+                                        print('hhh');
+                                        try {
+                                          for (History j in i.history!) {
+                                            print('klklkmmm');
+                                            try {
+                                              if (OidList.contains(j.id)) {
+                                                quantity = j.quantity;
+                                                date = j.datetime;
+                                                var diddff;
+                                                bool decor = false;
+                                                print('klklbnbk');
+                                                for (History n in i.history!) {
+                                                  print('klklkmdrgermm');
+                                                  try {
+                                                    if (n.datetime!
+                                                            .compareTo(date) >
+                                                        0) {
+                                                      print('iejiwoejfoiww');
+
+                                                      decor = false;
+                                                      print('klklkmdr9990wo');
+
+                                                      try {
+                                                        int diff1 = int.parse(
+                                                            quantity
+                                                                .toString());
+                                                        n.initialquantity =
+                                                            (int.parse(n.initialquantity!) -
+                                                                    diff1)
+                                                                .toString();
+                                                        n.finalquantity =
+                                                            (int.parse(n.finalquantity!) -
+                                                                    diff1)
+                                                                .toString();
+                                                        diddff = diff1;
+                                                        print(
+                                                            'diffk1: ${diff1}');
+                                                        print(n.finalquantity);
+                                                      } catch (e) {
+                                                        print(
+                                                            'oweioij: ${e.toString()}');
+                                                      }
+                                                    }
+                                                  } catch (e) {
+                                                    print("errorhjkl'jj: $e");
+                                                  }
+                                                }
+                                                try {
+                                                  print("iwoejwo");
+                                                  print(
+                                                      '${j.quantity} ${j.description} ${j.datetime}');
+                                                } catch (e) {
+                                                  print("w  e $e");
+                                                }
+                                              }
+                                            } catch (e) {
+                                              print("errorhjj: $e");
+                                            }
+                                          }
+                                        } catch (e) {
+                                          print("errorhjjk: $e");
+                                        }
+                                      }
+
+                                      FirebaseFirestore.instance
+                                          .collection("users")
+                                          .doc(FirebaseAuth
+                                              .instance.currentUser!.uid)
+                                          .update({
+                                        "locations": data.locations!
+                                            .map((e) => e.toJson())
+                                            .toList()
+                                      });
+                                    });
+                                  } catch (e) {
+                                    print("sdsddd: ${e}");
+                                  }
+                                  setState(() {
+                                    FFAppState().customer = 'Select Customer';
+                                    FFAppState().location = 'Select Location';
                                   });
                                   print('okwofjweojfwo9');
                                   Get.showSnackbar(GetBar(

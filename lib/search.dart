@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:xplode_management/global_variables.dart';
@@ -171,7 +173,7 @@ class _SearchState extends State<Search> {
                 return Padding(
                   padding: EdgeInsetsDirectional.fromSTEB(20, 18, 20, 5),
                   child: GestureDetector(
-                    onTap: () {
+                    onTap: () async {
                       if (widget.s == 'c') {
                         FFAppState().customer = items[index];
                         widget.changeboolfun();
@@ -187,38 +189,157 @@ class _SearchState extends State<Search> {
                               .forEach((key, value) {
                             for (var k in value) {
                               if (k != "Select Brand") {
-                                FFAppState().product.add("${key} (${k})");
+                                FFAppState().product.add("$key ($k)");
                               }
                             }
                           });
                         } catch (e) {
-                          print("error from search screen: ${e}");
+                          print("error from search screen: $e");
                           Get.showSnackbar(GetBar(
                             message: 'No Products Available!',
                             duration: Duration(seconds: 2),
                           ));
                         }
-
                         widget.changeboolfun();
                       }
 
                       if (widget.s == 'p') {
                         FFAppState().productvalue = items[index];
-                        for (Location i in FFAppState().locations) {
-                          var product =
-                              items[index].toString().split("(")[0].trim();
-                          if (i.product!.pname == product &&
-                              i.product!.category ==
-                                  items[index]
-                                      .toString()
-                                      .split("(")[1]
-                                      .split(")")[0]
-                                      .trim()) {
-                            print(i.product!.quantity);
-                            FFAppState().tempquantity = i.product!.quantity!;
-                            print(i.product!.category);
+                        FFAppState().tempquantity = 'null';
+
+                        // code for getting the heighest quantity of the selected date
+                        await FirebaseFirestore.instance
+                            .collection("users")
+                            .doc(FirebaseAuth.instance.currentUser!.uid)
+                            .get()
+                            .then((value) {
+                          print("isofwjeo3");
+                          try {
+                            OwnerModel data = OwnerModel.fromJson(
+                                value.data() as Map<String, dynamic>);
+
+                            for (Location i in data.locations!) {
+                              print('isofwjeo4');
+                              print(i.locationName);
+                              print(FFAppState().location);
+                              if (i.locationName ==
+                                  FFAppState().location.toString()) {
+                                print("isofwjeo4.1");
+                                print(FFAppState().productvalue);
+                                print("start....");
+                                print(
+                                    "${i.product!.pname}_${FFAppState().productvalue.toString().split('(')[0].trim()}");
+                                print(
+                                    "${i.product!.category}_${FFAppState().productvalue.toString().split('(')[1].trim().split(')')[0].trim().toString()}");
+                                print(FFAppState()
+                                    .productvalue
+                                    .toString()
+                                    .split('(')[0]
+                                    .trim());
+                                print(FFAppState()
+                                    .productvalue
+                                    .toString()
+                                    .split('(')[1]
+                                    .trim()
+                                    .split(')')[0]
+                                    .trim()
+                                    .toString());
+                                print(FFAppState()
+                                    .productvalue
+                                    .toString()
+                                    .split('(')[0]
+                                    .trim());
+                                if (FFAppState()
+                                            .productvalue
+                                            .toString()
+                                            .split('(')[0]
+                                            .trim() ==
+                                        i.product!.pname &&
+                                    FFAppState()
+                                            .productvalue
+                                            .toString()
+                                            .split('(')[1]
+                                            .trim()
+                                            .split(')')[0]
+                                            .trim()
+                                            .toString() ==
+                                        i.product!.category) {
+                                  print("isofwjeo5.1");
+                                  //
+                                  bool doesexist2 = false;
+                                  bool doesexist = false;
+                                  print("isofwjeo5.2");
+                                  var maxdate = "2000-06-25 00:00:48.033";
+                                  print("isofwjeo5.3");
+                                  var qunt;
+                                  print("isofwjeo5.4");
+                                  for (var k in i.history!) {
+                                    print("isofwjeo5.5");
+                                    print(k.datetime);
+                                    print(k.datetime.toString().split(" ")[0]);
+                                    print(dateTimeList);
+                                    if (k.datetime!.compareTo(
+                                                "${dateTimeList.toString().split(" ")[0]} 23:59:00.000") <
+                                            0 ||
+                                        k.datetime!.compareTo(
+                                                "${dateTimeList.toString().split(" ")[0]} 23:59:00.000") ==
+                                            0) {
+                                      print("isofwjeo5.6");
+                                      print(maxdate);
+                                      print("isofwjeo5.61");
+
+                                      print("isofwjeo5.62");
+                                      print(k.toJson());
+
+                                      print("isofwjeo5.63");
+                                      print(k.finalquantity);
+                                      print(k.datetime);
+                                      for (var n in i.history!) {
+                                        if (n.finalquantity != null) {
+                                          print(n.datetime);
+                                          print(dateTimeList.toString());
+
+                                          if (n.datetime!.compareTo(
+                                                      "${dateTimeList.toString().split(" ")[0]} 23:59:00.000") <
+                                                  0 ||
+                                              n.datetime!.compareTo(
+                                                      "${dateTimeList.toString().split(" ")[0]} 23:59:00.000") ==
+                                                  0) {
+                                            if (n.datetime!.compareTo(maxdate) >
+                                                0) {
+                                              print("isofwjeo5.7");
+                                              maxdate = n.datetime!;
+                                              print(maxdate);
+                                              print("isofwjeo5.8");
+                                              print(n.finalquantity);
+                                              print(qunt);
+                                              qunt = n.finalquantity;
+                                              print(qunt);
+                                              print("isofwjeo5.9");
+                                              doesexist2 = true;
+                                            }
+                                            doesexist = true;
+                                          }
+                                        }
+                                      }
+                                      break;
+                                    }
+                                  }
+                                  qunt ??= "0";
+                                  var quantity = doesexist ? qunt : '0';
+
+                                  setState(() {
+                                    FFAppState().tempquantity = quantity;
+                                    print("wiofowe");
+                                    print(FFAppState().tempquantity);
+                                  });
+                                }
+                              }
+                            }
+                          } catch (e) {
+                            print('error id junki : ${e}');
                           }
-                        }
+                        });
                         widget.changeboolfun();
                       }
                     },
