@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../pdf"
+		},
+		{
+			"path": "../../printing"
+		}
+	],
+	"settings": {}
+}

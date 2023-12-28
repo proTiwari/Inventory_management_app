@@ -32,8 +32,8 @@ class _ProductActivitylistWidgetState extends State<ProductActivitylistWidget> {
 
   List<String> allLocations = [];
 
-  getAllLocations() {
-    FirebaseFirestore.instance
+  getAllLocations() async {
+    await FirebaseFirestore.instance
         .collection("users")
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .get()
@@ -42,18 +42,22 @@ class _ProductActivitylistWidgetState extends State<ProductActivitylistWidget> {
       for (var i in locations) {
         print(i['locationName']);
         setState(() {
-          allLocations.add(i['locationName']);
+          if (allLocations.contains(i['locationName']) == false) {
+            allLocations = [...allLocations, i['locationName']];
+          }
+          ;
+          // allLocations.add(i['locationName']);
         });
       }
       List<String> uniqueList = [];
 
-      for (String str in allLocations) {
-        if (!uniqueList.contains(str)) {
-          uniqueList.add(str);
-        }
-      }
+      // for (String str in allLocations) {
+      //   if (!uniqueList.contains(str)) {
+      //     uniqueList.add(str);
+      //   }
+      // }
       setState(() {
-        allLocations = uniqueList;
+        // allLocations = uniqueList;
       });
     });
   }
@@ -170,6 +174,7 @@ class _ProductActivitylistWidgetState extends State<ProductActivitylistWidget> {
                                             await showOmniDateTimeRangePicker(
                                           context: context,
                                           startInitialDate: DateTime.now(),
+                                          type: OmniDateTimePickerType.date,
                                           startFirstDate: DateTime(1600)
                                               .subtract(
                                                   const Duration(days: 3652)),
@@ -257,6 +262,7 @@ class _ProductActivitylistWidgetState extends State<ProductActivitylistWidget> {
                                         List<History> datalist = [];
                                         List<History>
                                             datalistwithfilteredvalue = [];
+                                        List locations = [];
                                         try {
                                           OwnerModel data = OwnerModel.fromJson(
                                               snapshot.data!.data()
@@ -371,9 +377,12 @@ class _ProductActivitylistWidgetState extends State<ProductActivitylistWidget> {
                                                 print(
                                                     "productdata.pname: ${productdata.pname}");
                                                 if (k.pname ==
-                                                    productdata.pname) {
+                                                        productdata.pname &&
+                                                    k.brand ==
+                                                        productdata.category) {
                                                   datalistwithfilteredvalue
                                                       .add(k);
+
                                                   print(
                                                       "iwoejfowjeio $datalistwithfilteredvalue");
                                                 }
@@ -383,6 +392,12 @@ class _ProductActivitylistWidgetState extends State<ProductActivitylistWidget> {
                                             }
                                           }
 
+                                          datalistwithfilteredvalue.sort(
+                                              (a, b) => a.datetime!
+                                                  .compareTo(b.datetime!));
+                                          datalistwithfilteredvalue =
+                                              datalistwithfilteredvalue.reversed
+                                                  .toList();
                                           print("datasfewe: ${datalist}");
                                           if (dateTimeList != null &&
                                               datalistwithfilteredvalue
@@ -400,6 +415,8 @@ class _ProductActivitylistWidgetState extends State<ProductActivitylistWidget> {
                                                   context: context,
                                                   startInitialDate:
                                                       DateTime.now(),
+                                                  type: OmniDateTimePickerType
+                                                      .date,
                                                   startFirstDate: DateTime(1600)
                                                       .subtract(const Duration(
                                                           days: 3652)),
@@ -544,143 +561,318 @@ class _ProductActivitylistWidgetState extends State<ProductActivitylistWidget> {
                                           scrollDirection: Axis.vertical,
                                           itemBuilder: (BuildContext context,
                                               int index) {
-                                            return Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(16, 8, 16, 0),
-                                              child: Container(
-                                                width: double.infinity,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      blurRadius: 3,
-                                                      color: Color(0x20000000),
-                                                      offset: Offset(0, 1),
-                                                    )
-                                                  ],
-                                                  borderRadius:
-                                                      BorderRadius.circular(12),
-                                                ),
-                                                child: Padding(
-                                                  padding: EdgeInsetsDirectional
-                                                      .fromSTEB(0, 0, 0, 0),
-                                                  child: Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.max,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Expanded(
-                                                        child: Column(
+                                            return datalistwithfilteredvalue[
+                                                            index]
+                                                        .type ==
+                                                    "add"
+                                                ? Container()
+                                                : Padding(
+                                                    padding:
+                                                        EdgeInsetsDirectional
+                                                            .fromSTEB(
+                                                                16, 8, 16, 0),
+                                                    child: Container(
+                                                      width: double.infinity,
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white,
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            blurRadius: 3,
+                                                            color: Color(
+                                                                0x20000000),
+                                                            offset:
+                                                                Offset(0, 1),
+                                                          )
+                                                        ],
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(12),
+                                                      ),
+                                                      child: Padding(
+                                                        padding:
+                                                            EdgeInsetsDirectional
+                                                                .fromSTEB(
+                                                                    0, 0, 0, 0),
+                                                        child: Row(
                                                           mainAxisSize:
                                                               MainAxisSize.max,
                                                           crossAxisAlignment:
                                                               CrossAxisAlignment
-                                                                  .start,
+                                                                  .center,
                                                           children: [
-                                                            Padding(
-                                                              padding:
-                                                                  EdgeInsetsDirectional
-                                                                      .fromSTEB(
-                                                                          16,
-                                                                          16,
-                                                                          16,
-                                                                          16),
+                                                            Expanded(
                                                               child: Column(
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .max,
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
                                                                 children: [
-                                                                  Row(
-                                                                    mainAxisSize:
-                                                                        MainAxisSize
-                                                                            .max,
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .spaceBetween,
-                                                                    children: [
-                                                                      Text(
-                                                                          '${datalistwithfilteredvalue[index].pname} ',
-                                                                          style:
-                                                                              TextStyle(
-                                                                            color:
-                                                                                Color(0xFF4B39EF),
-                                                                            fontSize:
-                                                                                11,
-                                                                            fontWeight:
-                                                                                FontWeight.normal,
-                                                                          )),
-                                                                      datalistwithfilteredvalue[index].type ==
-                                                                              "add"
-                                                                          ? Text(
-                                                                              'Product Added',
-                                                                              style: TextStyle(
-                                                                                fontFamily: 'Plus Jakarta Sans',
-                                                                                color: Color.fromARGB(255, 0, 197, 85),
-                                                                                fontSize: 11,
-                                                                                fontWeight: FontWeight.normal,
-                                                                              ))
-                                                                          : datalistwithfilteredvalue[index].status == "in"
-                                                                              ? Text('Quantity Added (${datalistwithfilteredvalue[index].initialquantity} + ${int.parse(datalistwithfilteredvalue[index].finalquantity.toString()) - int.parse(datalistwithfilteredvalue[index].initialquantity.toString())} = ${datalistwithfilteredvalue[index].finalquantity})',
-                                                                                  style: TextStyle(
-                                                                                    fontFamily: 'Plus Jakarta Sans',
-                                                                                    color: Color.fromARGB(255, 0, 197, 85),
-                                                                                    fontSize: 11,
-                                                                                    fontWeight: FontWeight.normal,
-                                                                                  ))
-                                                                              : Text('Sold Quantity (${datalistwithfilteredvalue[index].initialquantity} - ${int.parse(datalistwithfilteredvalue[index].initialquantity.toString()) - int.parse(datalistwithfilteredvalue[index].finalquantity.toString())} = ${datalistwithfilteredvalue[index].finalquantity})',
-                                                                                  style: TextStyle(
-                                                                                    fontFamily: 'Plus Jakarta Sans',
-                                                                                    color: Color.fromARGB(255, 204, 90, 33),
-                                                                                    fontSize: 11,
-                                                                                    fontWeight: FontWeight.normal,
-                                                                                  )),
-                                                                    ],
-                                                                  ),
-                                                                  datalistwithfilteredvalue[index]
-                                                                              .lotid ==
-                                                                          null
-                                                                      ? Container()
-                                                                      : Padding(
-                                                                          padding: const EdgeInsets.fromLTRB(
-                                                                              0.0,
-                                                                              8.0,
-                                                                              0.0,
-                                                                              0.0),
-                                                                          child:
-                                                                              Row(
-                                                                            mainAxisSize:
-                                                                                MainAxisSize.max,
-                                                                            mainAxisAlignment:
-                                                                                MainAxisAlignment.spaceBetween,
-                                                                            children: [
-                                                                              Padding(
-                                                                                padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
-                                                                                child: Text("Lot Id: ${datalistwithfilteredvalue[index].lotid}",
-                                                                                    style: TextStyle(
-                                                                                      color: Color(0xFF4B39EF),
-                                                                                      fontSize: 11,
-                                                                                      fontWeight: FontWeight.normal,
-                                                                                    )),
+                                                                  Padding(
+                                                                    padding: EdgeInsetsDirectional
+                                                                        .fromSTEB(
+                                                                            16,
+                                                                            16,
+                                                                            16,
+                                                                            16),
+                                                                    child:
+                                                                        Column(
+                                                                      children: [
+                                                                        Row(
+                                                                          mainAxisSize:
+                                                                              MainAxisSize.max,
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.spaceBetween,
+                                                                          children: [
+                                                                            Expanded(
+                                                                              flex: 1,
+                                                                              child: Column(
+                                                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                children: [
+                                                                                  Text('${datalistwithfilteredvalue[index].pname}${"\n"}(${datalistwithfilteredvalue[index].brand})',
+                                                                                      style: TextStyle(
+                                                                                        color: Color(0xFF4B39EF),
+                                                                                        fontSize: 11,
+                                                                                        fontWeight: FontWeight.normal,
+                                                                                      )),
+                                                                                  datalistwithfilteredvalue[index].status == "in" && datalistwithfilteredvalue[index].type == "edit"
+                                                                                      ? Text('Description: ${datalistwithfilteredvalue[index].description}',
+                                                                                          style: TextStyle(
+                                                                                            color: Color(0xFF4B39EF),
+                                                                                            fontSize: 11,
+                                                                                            fontWeight: FontWeight.normal,
+                                                                                          ))
+                                                                                      : Container(),
+                                                                                  datalistwithfilteredvalue[index].status == "out"
+                                                                                      ? Column(
+                                                                                          mainAxisAlignment: MainAxisAlignment.start,
+                                                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                          children: [
+                                                                                            Text('Location: ${location}',
+                                                                                                style: TextStyle(
+                                                                                                  color: Color(0xFF4B39EF),
+                                                                                                  fontSize: 11,
+                                                                                                  fontWeight: FontWeight.normal,
+                                                                                                )),
+                                                                                            Text('Description: ${datalistwithfilteredvalue[index].description}',
+                                                                                                style: TextStyle(
+                                                                                                  color: Color(0xFF4B39EF),
+                                                                                                  fontSize: 11,
+                                                                                                  fontWeight: FontWeight.normal,
+                                                                                                )),
+                                                                                          ],
+                                                                                        )
+                                                                                      : Container()
+                                                                                ],
                                                                               ),
-                                                                              Text("Date: ${datalistwithfilteredvalue[index].datetime.toString().split(" ")[0]}",
-                                                                                  style: TextStyle(
-                                                                                    color: Color(0xFF4B39EF),
-                                                                                    fontSize: 11,
-                                                                                    fontWeight: FontWeight.normal,
-                                                                                  ))
-                                                                            ],
-                                                                          ),
+                                                                            ),
+                                                                            datalistwithfilteredvalue[index].type == "add"
+                                                                                ? Container()
+                                                                                // ? Text(
+                                                                                //     'Product Added',
+                                                                                //     style: TextStyle(
+                                                                                //       fontFamily: 'Plus Jakarta Sans',
+                                                                                //       color: Color.fromARGB(255, 0, 197, 85),
+                                                                                //       fontSize: 11,
+                                                                                //       fontWeight: FontWeight.normal,
+                                                                                //     ))
+                                                                                : datalistwithfilteredvalue[index].status == "in"
+                                                                                    ? Text('Quantity Added (${datalistwithfilteredvalue[index].initialquantity} + ${datalistwithfilteredvalue[index].quantity} = ${datalistwithfilteredvalue[index].finalquantity})',
+                                                                                        style: TextStyle(
+                                                                                          fontFamily: 'Plus Jakarta Sans',
+                                                                                          color: Color.fromARGB(255, 0, 197, 85),
+                                                                                          fontSize: 11,
+                                                                                          fontWeight: FontWeight.normal,
+                                                                                        ))
+                                                                                    : Expanded(
+                                                                                        flex: 1,
+                                                                                        child: Column(
+                                                                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                                                                          mainAxisAlignment: MainAxisAlignment.end,
+                                                                                          children: [
+                                                                                            Text('Sold Quantity ${int.parse(datalistwithfilteredvalue[index].quantity.toString())} to ${datalistwithfilteredvalue[index].customername}',
+                                                                                                style: TextStyle(
+                                                                                                  fontFamily: 'Plus Jakarta Sans',
+                                                                                                  color: Color.fromARGB(255, 204, 90, 33),
+                                                                                                  fontSize: 11,
+                                                                                                  fontWeight: FontWeight.normal,
+                                                                                                )),
+                                                                                            Text('${datalistwithfilteredvalue[index].initialquantity} - ${int.parse(datalistwithfilteredvalue[index].initialquantity.toString()) - int.parse(datalistwithfilteredvalue[index].finalquantity.toString())} = ${datalistwithfilteredvalue[index].finalquantity}',
+                                                                                                style: TextStyle(
+                                                                                                  fontFamily: 'Plus Jakarta Sans',
+                                                                                                  color: Color.fromARGB(255, 204, 90, 33),
+                                                                                                  fontSize: 11,
+                                                                                                  fontWeight: FontWeight.normal,
+                                                                                                )),
+                                                                                            Text('${datalistwithfilteredvalue[index].datetime.toString().split(" ")[0]}',
+                                                                                                style: TextStyle(
+                                                                                                  fontFamily: 'Plus Jakarta Sans',
+                                                                                                  color: Color.fromARGB(255, 204, 90, 33),
+                                                                                                  fontSize: 11,
+                                                                                                  fontWeight: FontWeight.normal,
+                                                                                                )),
+                                                                                          ],
+                                                                                        ),
+                                                                                      ), //
+                                                                          ],
                                                                         ),
+                                                                        datalistwithfilteredvalue[index].lotid ==
+                                                                                null
+                                                                            ? Container()
+                                                                            : Padding(
+                                                                                padding: const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 0.0),
+                                                                                child: Row(
+                                                                                  mainAxisSize: MainAxisSize.max,
+                                                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                                  children: [
+                                                                                    Padding(
+                                                                                      padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                                                                                      child: Text("Lot Id: ${datalistwithfilteredvalue[index].lotid}",
+                                                                                          style: TextStyle(
+                                                                                            color: Color(0xFF4B39EF),
+                                                                                            fontSize: 11,
+                                                                                            fontWeight: FontWeight.normal,
+                                                                                          )),
+                                                                                    ),
+                                                                                    Column(
+                                                                                      mainAxisAlignment: MainAxisAlignment.end,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                                                                      children: [
+                                                                                        Text("Date: ${datalistwithfilteredvalue[index].datetime.toString().split(" ")[0]}",
+                                                                                            style: TextStyle(
+                                                                                              color: Color(0xFF4B39EF),
+                                                                                              fontSize: 11,
+                                                                                              fontWeight: FontWeight.normal,
+                                                                                            )),
+                                                                                        Padding(
+                                                                                          padding: const EdgeInsets.fromLTRB(0, 18, 0, 0),
+                                                                                          child: GestureDetector(
+                                                                                            onTap: () {
+                                                                                              showDialog(
+                                                                                                  context: context,
+                                                                                                  builder: (BuildContext context) {
+                                                                                                    return AlertDialog(
+                                                                                                      title: Text('Delete'),
+                                                                                                      content: Text('Are you sure you want to delete this record?'),
+                                                                                                      actions: [
+                                                                                                        TextButton(
+                                                                                                          onPressed: () {
+                                                                                                            Navigator.pop(context);
+                                                                                                          },
+                                                                                                          child: Text('No'),
+                                                                                                        ),
+                                                                                                        TextButton(
+                                                                                                          onPressed: () {
+                                                                                                            Navigator.pop(context);
+                                                                                                            setState(() {
+                                                                                                              // datalistwithfilteredvalue.removeAt(index);
+                                                                                                            });
+                                                                                                            try {
+                                                                                                              // code for removing added quantity from products
+                                                                                                              var id = datalistwithfilteredvalue[index].id;
+                                                                                                              var date = datalistwithfilteredvalue[index].datetime;
+                                                                                                              var quantity;
+                                                                                                              FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).get().then((value) {
+                                                                                                                OwnerModel data = OwnerModel.fromJson(value.data() as Map<String, dynamic>);
+                                                                                                                for (Location i in data.locations!) {
+                                                                                                                  print('hhh');
+                                                                                                                  try {
+                                                                                                                    for (History j in i.history!) {
+                                                                                                                      print('klklkmmm');
+                                                                                                                      try {
+                                                                                                                        if (id == j.id) {
+                                                                                                                          quantity = j.quantity;
+                                                                                                                          date = j.datetime;
+                                                                                                                          var diddff;
+                                                                                                                          bool decor = false;
+                                                                                                                          print('klklbnbk');
+                                                                                                                          for (History n in i.history!) {
+                                                                                                                            print('klklkmdrgermm');
+                                                                                                                            try {
+                                                                                                                              if (n.datetime!.compareTo(date!) > 0) {
+                                                                                                                                print('iejiwoejfoiww');
+
+                                                                                                                                decor = false;
+                                                                                                                                print('klklkmdr9990wo');
+
+                                                                                                                                try {
+                                                                                                                                  int diff1 = int.parse(quantity.toString());
+                                                                                                                                  n.initialquantity = (int.parse(n.initialquantity!) - diff1).toString();
+                                                                                                                                  n.finalquantity = (int.parse(n.finalquantity!) - diff1).toString();
+                                                                                                                                  diddff = diff1;
+                                                                                                                                  print('diffk1: ${diff1}');
+                                                                                                                                  print(n.finalquantity);
+                                                                                                                                } catch (e) {
+                                                                                                                                  print('oweioij: ${e.toString()}');
+                                                                                                                                }
+                                                                                                                              }
+                                                                                                                            } catch (e) {
+                                                                                                                              print("errorhjkl'jj: $e");
+                                                                                                                            }
+                                                                                                                          }
+                                                                                                                          i.history!.remove(j);
+                                                                                                                          FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).update({
+                                                                                                                            "locations": data.locations!.map((e) => e.toJson()).toList()
+                                                                                                                          });
+                                                                                                                          try {
+                                                                                                                            print("iwoejwo");
+                                                                                                                            print('${j.quantity} ${j.description} ${j.datetime}');
+                                                                                                                          } catch (e) {
+                                                                                                                            print("w  e $e");
+                                                                                                                          }
+                                                                                                                        }
+                                                                                                                      } catch (e) {
+                                                                                                                        print("errorhjj: $e");
+                                                                                                                      }
+                                                                                                                    }
+                                                                                                                  } catch (e) {
+                                                                                                                    print("errorhjjk: $e");
+                                                                                                                  }
+                                                                                                                }
+                                                                                                              });
+                                                                                                            } catch (e) {
+                                                                                                              print(e);
+                                                                                                            }
+                                                                                                          },
+                                                                                                          child: Text('Yes'),
+                                                                                                        ),
+                                                                                                      ],
+                                                                                                    );
+                                                                                                  });
+                                                                                            },
+                                                                                            child: Container(
+                                                                                              height: 36,
+                                                                                              width: 36,
+                                                                                              decoration: BoxDecoration(
+                                                                                                shape: BoxShape.circle,
+                                                                                                color: Colors.grey[200],
+                                                                                              ),
+                                                                                              child: Icon(
+                                                                                                Icons.delete_rounded,
+                                                                                                color: Colors.blue,
+                                                                                                size: 20,
+                                                                                              ),
+                                                                                            ),
+                                                                                          ),
+                                                                                        )
+                                                                                      ],
+                                                                                    )
+                                                                                  ],
+                                                                                ),
+                                                                              ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
                                                                 ],
                                                               ),
                                                             ),
                                                           ],
                                                         ),
                                                       ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            );
+                                                    ),
+                                                  );
                                           },
                                         );
                                       } else if (snapshot.hasError) {

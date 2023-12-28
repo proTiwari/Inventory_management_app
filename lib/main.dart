@@ -1,4 +1,6 @@
-import 'dart:html';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:universal_html/html.dart' as html;
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -15,17 +17,24 @@ import 'splash_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: const FirebaseOptions(
-      apiKey: "AIzaSyAFokIPvRp06kw9tQDaG0dnzTpCwQoPlEs",
-      authDomain: "xplode-inventory-app.firebaseapp.com",
-      projectId: "xplode-inventory-app",
-      storageBucket: "xplode-inventory-app.appspot.com",
-      messagingSenderId: "188414407592",
-      appId: "1:188414407592:web:df17c67cf2a280614de39d",
-      measurementId: "G-TFMTDLDV7D",
-    ),
-  );
+  // check if it is web or android if web then initialize firebase and if android then initialize firebase
+
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+      options: const FirebaseOptions(
+        apiKey: "AIzaSyAFokIPvRp06kw9tQDaG0dnzTpCwQoPlEs",
+        authDomain: "xplode-inventory-app.firebaseapp.com",
+        projectId: "xplode-inventory-app",
+        storageBucket: "xplode-inventory-app.appspot.com",
+        messagingSenderId: "188414407592",
+        appId: "1:188414407592:web:df17c67cf2a280614de39d",
+        measurementId: "G-TFMTDLDV7D",
+      ),
+    );
+  } else {
+    await Firebase.initializeApp();
+  }
+
   runApp(const MyApp());
 }
 
@@ -36,7 +45,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     try {
-      String currentUrl = window.location.href;
+      String currentUrl = html.window.location.href;
       print("current url: $currentUrl");
       if (currentUrl.contains("admin")) {
         SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -48,6 +57,9 @@ class MyApp extends StatelessWidget {
     }
 
     return GetMaterialApp(
+      shortcuts: {
+        LogicalKeySet(LogicalKeyboardKey.space): ActivateIntent(),
+      },
       routes: {
         '/admin/': (context) => const AdminLoginpageWidget(),
       },

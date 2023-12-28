@@ -91,6 +91,8 @@ class History {
   String? lotid;
   String? description;
   String? pname;
+  String? brand;
+  String? id;
 
   History({
     this.status,
@@ -101,8 +103,10 @@ class History {
     this.finalquantity,
     this.customername,
     this.lotid,
+    this.brand,
     this.description,
     this.pname,
+    this.id
   });
 
   factory History.fromJson(Map<String, dynamic> json) => History(
@@ -116,6 +120,8 @@ class History {
         lotid: json["lotid"],
         description: json["description"],
         pname: json["pname"],
+        brand: json["brand"],
+        id:json['id']
       );
 
   Map<String, dynamic> toJson() => {
@@ -128,7 +134,9 @@ class History {
         "customername": customername,
         "lotid": lotid,
         "pname": pname,
+        "brand": brand,
         "description": description,
+        "id":id
       };
 }
 

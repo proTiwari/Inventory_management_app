@@ -29,8 +29,8 @@ class _ActivitylistWidgetState extends State<ActivitylistWidget> {
 
   List<String> allLocations = [];
 
-  getAllLocations() {
-    FirebaseFirestore.instance
+  getAllLocations() async {
+    await FirebaseFirestore.instance
         .collection("users")
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .get()
@@ -39,18 +39,22 @@ class _ActivitylistWidgetState extends State<ActivitylistWidget> {
       for (var i in locations) {
         print(i['locationName']);
         setState(() {
-          allLocations.add(i['locationName']);
+          if (allLocations.contains(i['locationName']) == false) {
+            allLocations = [...allLocations, i['locationName']];
+          }
+          ;
+          // allLocations.add(i['locationName']);
         });
       }
       List<String> uniqueList = [];
 
-      for (String str in allLocations) {
-        if (!uniqueList.contains(str)) {
-          uniqueList.add(str);
-        }
-      }
+      // for (String str in allLocations) {
+      //   if (!uniqueList.contains(str)) {
+      //     uniqueList.add(str);
+      //   }
+      // }
       setState(() {
-        allLocations = uniqueList;
+        // allLocations = uniqueList;
       });
     });
   }
@@ -167,6 +171,7 @@ class _ActivitylistWidgetState extends State<ActivitylistWidget> {
                                             await showOmniDateTimeRangePicker(
                                           context: context,
                                           startInitialDate: DateTime.now(),
+                                          type: OmniDateTimePickerType.date,
                                           startFirstDate: DateTime(1600)
                                               .subtract(
                                                   const Duration(days: 3652)),
@@ -374,6 +379,12 @@ class _ActivitylistWidgetState extends State<ActivitylistWidget> {
                                             }
                                           }
 
+                                          datalistwithfilteredvalue.sort(
+                                              (a, b) => a.datetime!
+                                                  .compareTo(b.datetime!));
+                                          datalistwithfilteredvalue =
+                                              datalistwithfilteredvalue.reversed
+                                                  .toList();
                                           print("datasfewe: ${datalist}");
                                           if (dateTimeList != null &&
                                               datalistwithfilteredvalue
@@ -389,6 +400,8 @@ class _ActivitylistWidgetState extends State<ActivitylistWidget> {
                                                 dateTimeList =
                                                     await showOmniDateTimeRangePicker(
                                                   context: context,
+                                                  type: OmniDateTimePickerType
+                                                      .date,
                                                   startInitialDate:
                                                       DateTime.now(),
                                                   startFirstDate: DateTime(1600)
@@ -588,27 +601,57 @@ class _ActivitylistWidgetState extends State<ActivitylistWidget> {
                                                                         MainAxisAlignment
                                                                             .spaceBetween,
                                                                     children: [
-                                                                      Text(
-                                                                          '${datalistwithfilteredvalue[index].pname} ',
-                                                                          style:
-                                                                              TextStyle(
-                                                                            color:
-                                                                                Color(0xFF4B39EF),
-                                                                            fontSize:
-                                                                                11,
-                                                                            fontWeight:
-                                                                                FontWeight.normal,
-                                                                          )),
-                                                                      datalistwithfilteredvalue[index].type ==
-                                                                              "add"
-                                                                          ? Text(
-                                                                              'Product Added',
+                                                                      Column(
+                                                                        crossAxisAlignment:
+                                                                            CrossAxisAlignment.start,
+                                                                        children: [
+                                                                          Text(
+                                                                              '${datalistwithfilteredvalue[index].pname}${"\n"}(${datalistwithfilteredvalue[index].brand})',
                                                                               style: TextStyle(
-                                                                                fontFamily: 'Plus Jakarta Sans',
-                                                                                color: Color.fromARGB(255, 0, 197, 85),
+                                                                                color: Color(0xFF4B39EF),
                                                                                 fontSize: 11,
                                                                                 fontWeight: FontWeight.normal,
-                                                                              ))
+                                                                              )),
+                                                                          datalistwithfilteredvalue[index].status == "in" && datalistwithfilteredvalue[index].type == "edit"
+                                                                              ? Text('Description: ${datalistwithfilteredvalue[index].description}',
+                                                                                  style: TextStyle(
+                                                                                    color: Color(0xFF4B39EF),
+                                                                                    fontSize: 11,
+                                                                                    fontWeight: FontWeight.normal,
+                                                                                  ))
+                                                                              : Container(),
+                                                                          datalistwithfilteredvalue[index].status == "out"
+                                                                              ? Column(
+                                                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                  children: [
+                                                                                    Text('Location: ${location}',
+                                                                                        style: TextStyle(
+                                                                                          color: Color(0xFF4B39EF),
+                                                                                          fontSize: 11,
+                                                                                          fontWeight: FontWeight.normal,
+                                                                                        )),
+                                                                                    Text('Description: ${datalistwithfilteredvalue[index].description}',
+                                                                                        style: TextStyle(
+                                                                                          color: Color(0xFF4B39EF),
+                                                                                          fontSize: 11,
+                                                                                          fontWeight: FontWeight.normal,
+                                                                                        )),
+                                                                                  ],
+                                                                                )
+                                                                              : Container()
+                                                                        ],
+                                                                      ),
+                                                                      datalistwithfilteredvalue[index].type ==
+                                                                              "add"? Container()
+                                                                          // ? Text(
+                                                                          //     'Product Added',
+                                                                          //     style: TextStyle(
+                                                                          //       fontFamily: 'Plus Jakarta Sans',
+                                                                          //       color: Color.fromARGB(255, 0, 197, 85),
+                                                                          //       fontSize: 11,
+                                                                          //       fontWeight: FontWeight.normal,
+                                                                          //     ))
                                                                           : datalistwithfilteredvalue[index].status == "in"
                                                                               ? Text('Quantity Added (${datalistwithfilteredvalue[index].initialquantity} + ${int.parse(datalistwithfilteredvalue[index].finalquantity.toString()) - int.parse(datalistwithfilteredvalue[index].initialquantity.toString())} = ${datalistwithfilteredvalue[index].finalquantity})',
                                                                                   style: TextStyle(
@@ -617,13 +660,26 @@ class _ActivitylistWidgetState extends State<ActivitylistWidget> {
                                                                                     fontSize: 11,
                                                                                     fontWeight: FontWeight.normal,
                                                                                   ))
-                                                                              : Text('Sold Quantity (${datalistwithfilteredvalue[index].initialquantity} - ${int.parse(datalistwithfilteredvalue[index].initialquantity.toString()) - int.parse(datalistwithfilteredvalue[index].finalquantity.toString())} = ${datalistwithfilteredvalue[index].finalquantity})',
-                                                                                  style: TextStyle(
-                                                                                    fontFamily: 'Plus Jakarta Sans',
-                                                                                    color: Color.fromARGB(255, 204, 90, 33),
-                                                                                    fontSize: 11,
-                                                                                    fontWeight: FontWeight.normal,
-                                                                                  )),
+                                                                              : Column(
+                                                                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                                                                  mainAxisAlignment: MainAxisAlignment.end,
+                                                                                  children: [
+                                                                                    Text('Sold Quantity ${int.parse(datalistwithfilteredvalue[index].initialquantity.toString()) - int.parse(datalistwithfilteredvalue[index].finalquantity.toString())} to ${datalistwithfilteredvalue[index].customername}',
+                                                                                        style: TextStyle(
+                                                                                          fontFamily: 'Plus Jakarta Sans',
+                                                                                          color: Color.fromARGB(255, 204, 90, 33),
+                                                                                          fontSize: 11,
+                                                                                          fontWeight: FontWeight.normal,
+                                                                                        )),
+                                                                                    Text('Available: ${datalistwithfilteredvalue[index].initialquantity} - ${int.parse(datalistwithfilteredvalue[index].initialquantity.toString()) - int.parse(datalistwithfilteredvalue[index].finalquantity.toString())} = ${datalistwithfilteredvalue[index].finalquantity}, ${datalistwithfilteredvalue[index].datetime.toString().split(" ")[0]}',
+                                                                                        style: TextStyle(
+                                                                                          fontFamily: 'Plus Jakarta Sans',
+                                                                                          color: Color.fromARGB(255, 204, 90, 33),
+                                                                                          fontSize: 11,
+                                                                                          fontWeight: FontWeight.normal,
+                                                                                        )),
+                                                                                  ],
+                                                                                ), //
                                                                     ],
                                                                   ),
                                                                   datalistwithfilteredvalue[index]

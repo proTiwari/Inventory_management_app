@@ -1,26 +1,36 @@
 {
   "project_info": {
-    "project_number": "201786903715",
-    "project_id": "inventorymanagement-75f88",
-    "storage_bucket": "inventorymanagement-75f88.appspot.com"
+    "project_number": "188414407592",
+    "project_id": "xplode-inventory-app",
+    "storage_bucket": "xplode-inventory-app.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:201786903715:android:a68f405df0c74495804316",
+        "mobilesdk_app_id": "1:188414407592:android:d77bcb451d6190474de39d",
         "android_client_info": {
-          "package_name": "com.example.xplode_management"
+          "package_name": "com.inventory.xplode_management"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "188414407592-lup791h264s4nt3v9f2h0luqeuk8p0fp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyDnb9v5tXAIvoNAORwCpeszkTp2X9znEm0"
+          "current_key": "AIzaSyCsUsrYzOdV4sc9pWYQLoGOBviHaTRu7yM"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "188414407592-lup791h264s4nt3v9f2h0luqeuk8p0fp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
