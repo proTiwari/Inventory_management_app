@@ -419,7 +419,7 @@ packages:
   pdf:
     dependency: "direct main"
     description:
-      path: "../pdf"
+      path: pdf
       relative: true
     source: path
     version: "3.10.5"
@@ -458,7 +458,7 @@ packages:
   printing:
     dependency: "direct main"
     description:
-      path: "../printing"
+      path: printing
       relative: true
     source: path
     version: "5.11.1"

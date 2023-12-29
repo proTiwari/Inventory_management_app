@@ -63,9 +63,9 @@ dev_dependencies:
   
 dependency_overrides:
   pdf:
-    path: ../pdf
+    path: ./pdf
   printing:
-    path: ../printing
+    path: ./printing
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
